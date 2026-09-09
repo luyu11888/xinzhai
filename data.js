@@ -20,7 +20,7 @@ var META = {
                                 //   · 被垃圾骚扰/不想用时：清空为 '' 即自动降级为
                                 //     「复制预约信息 + 加微信」通道，页面照常可用；
                                 //   · 想换 Formspree：注册后填 https://formspree.io/f/你的ID
-  domain: 'https://luyu11888.github.io/psych/'  // 发布后的线上入口，分享文案用
+  domain: 'https://luyu11888.github.io/xinzhai/'  // 发布后的线上入口，分享文案用
 };
 
 /* ---------- 每日一理（按日期轮转，可随意增删） ---------- */
