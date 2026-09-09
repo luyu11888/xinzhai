@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f4ecdc">
+<title>心斋 · 心理学修习馆｜开智慧 · 养专注 · 解心结</title>
+<style>
+  :root{
+    --paper:#f4ecdc; --paper2:#ede1c8; --card:#fffdf6;
+    --ink:#2b251c; --ink2:#6d6251; --ink3:#98896d;
+    --line:#dcd0b5; --zin:#a0392a; --zin-d:#7c2a1e;
+    --moss:#5d6b50; --gold:#b98e4e; --ok:#4f6f47;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    font-family:"Source Han Serif SC","Noto Serif SC","Songti SC","STSong","SimSun","PingFang SC",serif;
+    color:var(--ink); line-height:1.9;
+    background:
+      radial-gradient(1000px 420px at 85% -6%, rgba(185,142,78,.12), transparent 60%),
+      radial-gradient(700px 380px at -8% 12%, rgba(160,57,42,.05), transparent 55%),
+      linear-gradient(180deg,var(--paper) 0%, #f6efe1 40%, var(--paper) 100%);
+    min-height:100vh;
+  }
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 16px; }
+  ::selection{ background:rgba(160,57,42,.16); }
+
+  /* ---------- 顶栏 ---------- */
+  .top{ position:sticky; top:0; z-index:50;
+    background:rgba(244,236,220,.92); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line); }
+  .top-in{ display:flex; align-items:center; gap:14px; padding:10px 0; flex-wrap:wrap; }
+  .brand{ display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; }
+  .seal{ width:40px; height:40px; border-radius:7px; flex:none;
+    background:linear-gradient(160deg,#b5492f,#8c2f20);
+    color:#fdf3dd; font-size:23px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 2px 8px rgba(124,42,30,.25);
+    font-family:"KaiTi","STKaiti","楷体",serif; }
+  .brand b{ font-size:23px; letter-spacing:5px; font-weight:bold; }
+  .brand small{ display:block; font-size:10.5px; letter-spacing:3.5px; color:var(--ink3);
+    font-weight:normal; margin-top:-2px; }
+  nav.tabs{ display:flex; gap:4px; overflow-x:auto; margin-left:auto; -webkit-overflow-scrolling:touch; }
+  nav.tabs::-webkit-scrollbar{ height:0; }
+  .tab-btn{ font-family:inherit; border:1px solid transparent; background:transparent; cursor:pointer;
+    padding:7px 17px; font-size:15px; letter-spacing:3px; color:var(--ink2);
+    border-radius:999px; white-space:nowrap; transition:all .18s; }
+  .tab-btn:hover{ color:var(--zin); background:rgba(160,57,42,.06); }
+  .tab-btn.on{ color:#fffaf0; background:linear-gradient(160deg,var(--zin),var(--zin-d));
+    box-shadow:0 3px 10px rgba(124,42,30,.3); }
+
+  /* ---------- 区块通用 ---------- */
+  .sec{ display:none; padding:34px 0 54px; animation:fade .4s ease; }
+  .sec.on{ display:block; }
+  @keyframes fade{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:none;} }
+  .sec-kicker{ font-size:13px; letter-spacing:6px; color:var(--zin); text-align:center; }
+  .sec-title{ text-align:center; font-size:32px; letter-spacing:9px; margin:6px 0 4px;
+    font-family:"KaiTi","STKaiti","楷体",serif; font-weight:bold; }
+  .sec-sub{ text-align:center; color:var(--ink2); font-size:14px; max-width:620px; margin:0 auto 8px; }
+  .divider{ border:none; border-top:1px dashed var(--line); margin:26px 0; }
+  .z-sep{ text-align:center; color:var(--gold); letter-spacing:10px; font-size:12px; margin:20px 0 6px; }
+
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:12px;
+    box-shadow:0 3px 12px rgba(90,70,35,.05); padding:22px; }
+
+  /* ---------- 首页 hero（紧凑：首屏 = 心斋 + 搜索框） ---------- */
+  .hero{ position:relative; text-align:center; padding:0 8px 2px; }
+  .hero::before{ content:""; position:absolute; top:-46px; right:6%; width:150px; height:150px;
+    background:radial-gradient(circle at 38% 34%, #f7ecd6 0%, rgba(244,236,220,0) 68%);
+    border-radius:50%; box-shadow:0 0 60px rgba(185,142,78,.18); pointer-events:none; }
+  .hero .moon{ content:""; position:absolute; top:-12px; right:14%; width:46px; height:46px;
+    border-radius:50%; background:radial-gradient(circle at 36% 32%, #fffdf2, #e8dcbe);
+    box-shadow:0 0 22px rgba(185,142,78,.32); opacity:.6; pointer-events:none; }
+  .hero .moon::after{ content:""; position:absolute; left:-12px; top:-6px; width:62px; height:62px;
+    background:var(--paper); border-radius:50%; }
+  .hero-name{ font-family:"KaiTi","STKaiti","楷体",serif; font-size:48px; font-weight:bold;
+    letter-spacing:16px; text-indent:16px; line-height:1.25;
+    text-shadow:0 2px 10px rgba(90,70,35,.12); }
+  .hero-en{ font-size:10.5px; letter-spacing:6px; color:var(--gold); margin-top:-2px;
+    font-family:Georgia,"Times New Roman",serif; }
+  .hero-idea{ font-size:16.5px; letter-spacing:2px; color:var(--zin);
+    max-width:560px; margin:0 auto; line-height:2.1; }
+  /* 标语行：降级为脚注般的小字，不抢首屏 */
+  .qa-lead{ font-size:12px; color:#a29476; letter-spacing:1.5px; margin-top:12px;
+    max-width:600px; margin-left:auto; margin-right:auto; line-height:2; }
+  .qa-lead i{ color:var(--gold); font-style:normal; margin:0 6px; letter-spacing:0; }
+  /* 邻馆引路 · 玄学馆（右侧小竖印，不扰主体） */
+  .hall-side{ position:absolute; right:4px; top:0;
+    display:flex; flex-direction:column; align-items:center; gap:7px;
+    padding:11px 7px 9px; text-decoration:none; color:inherit;
+    background:rgba(255,253,246,.66); backdrop-filter:blur(3px);
+    border:1px solid #d9ca9d; border-radius:15px;
+    box-shadow:0 6px 16px rgba(120,90,40,.07); transition:all .18s; }
+  .hall-side:hover{ background:rgba(255,253,246,.94); border-color:#a67c2e;
+    transform:translateX(-2px);
+    box-shadow:0 10px 22px rgba(120,90,40,.15); }
+  .hall-side .hs-seal{ width:61px; height:61px; flex:none; display:block; object-fit:cover;
+    border-radius:50%; background:#7a5a2a;
+    box-shadow:0 3px 10px rgba(122,90,40,.26); }
+  .hall-side .hs-txt{ writing-mode:vertical-rl; font-family:"KaiTi","STKaiti","楷体",serif;
+    font-size:16px; font-weight:bold; letter-spacing:6px; color:#6d5a2c; line-height:1; }
+  @media (max-width:700px){
+    .hall-side{ right:6px; top:50%; transform:translateY(-50%);
+      padding:8px; border-radius:50%; box-shadow:0 4px 12px rgba(120,90,40,.12); }
+    .hall-side .hs-txt{ display:none; }
+    .hall-side .hs-seal{ width:48px; height:48px; }
+    .hall-side:hover{ transform:translateY(-50%) translateX(-2px); }
+  }
+  /* 每日一课 */
+  .daily-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:760px){ .daily-grid{ grid-template-columns:1fr; } }
+  .daily-card{ position:relative; }
+  .daily-tag{ display:inline-block; font-size:12px; letter-spacing:4px; color:#fffaf0;
+    background:linear-gradient(160deg,var(--zin),var(--zin-d)); border-radius:6px;
+    padding:3px 14px; margin-bottom:10px; }
+  .daily-tag.alt{ background:linear-gradient(160deg,#6f7f62,#4a5a3e); }
+  .daily-card .dc-quote{ font-size:17px; line-height:2; letter-spacing:.5px; min-height:74px; }
+  .daily-card .dc-note{ color:var(--ink2); font-size:13.5px; border-top:1px dashed var(--line);
+    padding-top:10px; margin-top:8px; }
+  .dc-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:14px;
+    flex-wrap:wrap; gap:8px; }
+  .dc-nav{ display:flex; gap:6px; align-items:center; color:var(--ink3); font-size:13px; }
+  .mini-btn{ font-family:inherit; cursor:pointer; border:1px solid var(--line); background:#fff;
+    color:var(--ink2); border-radius:8px; padding:4px 13px; font-size:13px; letter-spacing:1px;
+    transition:all .16s; }
+  .mini-btn:hover{ border-color:var(--zin); color:var(--zin); }
+  .share-btn{ border:1px dashed var(--line); color:var(--ink3); }
+  .share-btn:hover{ border-color:var(--gold); color:#8a6a2e; }
+
+  /* 三旨 */
+  .tri{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:10px 0 6px; }
+  @media (max-width:760px){ .tri{ grid-template-columns:1fr; } }
+  .tri .card{ text-align:center; padding:24px 16px; }
+  .tri .no{ font-size:12px; letter-spacing:5px; color:var(--gold); }
+  .tri h3{ font-size:20px; letter-spacing:6px; margin:6px 0 4px; }
+  .tri p{ font-size:13.5px; color:var(--ink2); line-height:2; }
+  .go-card{ cursor:pointer; transition:transform .2s, box-shadow .2s, border-color .2s; }
+  .go-card:hover{ transform:translateY(-3px); box-shadow:0 10px 22px rgba(90,70,35,.1);
+    border-color:#c9a25c; }
+
+  /* ---------- 识理 · 词典 ---------- */
+  .fx-tools{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center; margin:16px 0 8px; }
+  #fxSearch{ font-family:inherit; font-size:14px; padding:9px 16px; width:100%; max-width:380px;
+    border:1px solid var(--line); border-radius:999px; background:#fffdf6; color:var(--ink);
+    outline:none; }
+  #fxSearch:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(185,142,78,.14); }
+  .chip{ font-family:inherit; cursor:pointer; border:1px solid var(--line); background:#fffdf6;
+    color:var(--ink2); border-radius:999px; padding:6px 16px; font-size:13.5px; letter-spacing:2px;
+    transition:all .16s; }
+  .chip:hover{ border-color:var(--zin); color:var(--zin); }
+  .chip.on{ background:var(--ink); color:#f6eeda; border-color:var(--ink); }
+  .fx-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; margin-top:16px; }
+  .fx{ position:relative; cursor:pointer; padding:18px; }
+  .fx .fx-t{ font-size:19px; font-weight:bold; letter-spacing:2px; }
+  .fx .fx-en{ font-size:11.5px; color:var(--ink3); font-style:italic; letter-spacing:1px;
+    font-family:Georgia,serif; margin:1px 0 8px; }
+  .fx .cat{ position:absolute; top:16px; right:16px; font-size:11px; letter-spacing:2px;
+    color:#fff; padding:2px 10px; border-radius:999px; }
+  .fx .fx-one{ font-size:14px; color:var(--ink2); }
+  .fx .fx-more{ display:none; border-top:1px dashed var(--line); margin-top:12px; padding-top:10px;
+    font-size:13.5px; color:var(--ink); }
+  .fx.open .fx-more{ display:block; }
+  .fx.open{ box-shadow:0 8px 20px rgba(90,70,35,.1); border-color:#cfb98a; }
+  .fx .lbl{ color:var(--zin); font-weight:bold; letter-spacing:2px; font-size:12.5px; }
+  .fx-count{ text-align:center; color:var(--ink3); font-size:13px; letter-spacing:2px; margin-top:6px; }
+
+  /* ---------- 练定 · 工具 ---------- */
+  .do-grid{ display:grid; grid-template-columns:1.15fr 1fr; gap:18px; }
+  @media (max-width:820px){ .do-grid{ grid-template-columns:1fr; } }
+  .tool-head{ display:flex; align-items:baseline; gap:10px; }
+  .tool-head h3{ font-size:21px; letter-spacing:5px; }
+  .tool-head span{ font-size:12.5px; color:var(--ink3); }
+  .dur-row{ display:flex; gap:8px; margin:12px 0 16px; flex-wrap:wrap; }
+  .dur{ font-family:inherit; border:1px solid var(--line); background:#fff; color:var(--ink2);
+    border-radius:999px; padding:7px 18px; font-size:14px; cursor:pointer; transition:all .16s; }
+  .dur:hover{ border-color:var(--zin); color:var(--zin); }
+  .dur.on{ background:var(--ink); color:#f6eeda; border-color:var(--ink); }
+  .big-btn{ font-family:"KaiTi","STKaiti","楷体",serif; cursor:pointer; width:100%;
+    border:none; border-radius:10px; padding:13px 0; font-size:17px; letter-spacing:7px; color:#fffaf0;
+    background:linear-gradient(160deg,var(--zin),var(--zin-d)); box-shadow:0 5px 14px rgba(124,42,30,.25);
+    transition:transform .15s, box-shadow .15s; }
+  .big-btn:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(124,42,30,.32); }
+  .big-btn.quiet{ background:linear-gradient(160deg,#6f7f62,#4a5a3e); box-shadow:0 5px 14px rgba(74,90,62,.28); }
+
+  .statline{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .stat{ border:1px solid var(--line); border-radius:10px; background:#fffdf6; padding:12px 14px; }
+  .stat b{ font-size:25px; color:var(--zin); letter-spacing:1px; }
+  .stat span{ display:block; font-size:12px; color:var(--ink3); letter-spacing:3px; margin-top:2px; }
+  .week-dots{ display:flex; gap:7px; justify-content:center; padding:8px 0; }
+  .wd{ width:26px; text-align:center; font-size:10.5px; color:var(--ink3); }
+  .wd i{ display:block; width:26px; height:26px; border-radius:50%; background:#e9dfc6;
+    margin-bottom:4px; }
+  .wd.on i{ background:linear-gradient(160deg,var(--zin),var(--zin-d)); box-shadow:0 0 0 3px rgba(160,57,42,.15); }
+  .how{ font-size:13px; color:var(--ink2); margin-top:12px; }
+  .how b{ color:var(--zin); font-weight:bold; }
+
+  /* 计时浮层 */
+  .ov{ position:fixed; inset:0; z-index:90; background:rgba(43,37,28,.55);
+    backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:18px; }
+  .ov.hidden{ display:none; }
+  .timer-card{ background:var(--card); border-radius:18px; border:1px solid var(--line);
+    width:100%; max-width:340px; text-align:center; padding:26px 18px 22px;
+    box-shadow:0 24px 60px rgba(0,0,0,.35); position:relative; }
+  .timer-card h3{ font-size:19px; letter-spacing:6px; margin-bottom:14px; }
+  .ring-box{ position:relative; width:240px; height:240px; margin:0 auto; }
+  svg.r{ transform:rotate(-90deg); }
+  .ring-bg{ fill:none; stroke:#efe6d0; stroke-width:8; }
+  .ring{ fill:none; stroke:var(--zin); stroke-width:8; stroke-linecap:round;
+    transition:stroke-dashoffset .25s linear; }
+  .ring-c{ position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; }
+  .tm-clock{ font-size:44px; letter-spacing:2px; font-variant-numeric:tabular-nums; }
+  .tm-phase{ margin-top:8px; font-size:15px; letter-spacing:4px; color:var(--zin);
+    font-family:"KaiTi","STKaiti","楷体",serif; min-height:22px; }
+  .breath-ball{ width:150px; height:150px; border-radius:50%; margin:6px auto;
+    background:radial-gradient(circle at 36% 32%, #f9e7d4, #dfbfa0);
+    box-shadow:0 0 0 8px rgba(160,57,42,.05), 0 8px 24px rgba(124,42,30,.16);
+    transform:scale(.62); transition:transform 1s ease-in-out; }
+  .timer-btns{ display:flex; gap:10px; margin-top:16px; }
+  .timer-btns .mini-btn{ flex:1; padding:9px 0; font-size:14px; letter-spacing:4px; }
+  .tm-done{ color:var(--ok); font-size:14px; letter-spacing:2px; }
+
+  /* ---------- 测评 ---------- */
+  .test-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px; }
+  .test-card{ cursor:pointer; text-align:center; padding:24px 16px; position:relative; }
+  .test-card .src-tag{ position:absolute; top:14px; right:14px; font-size:11px; letter-spacing:1px;
+    padding:1px 9px; border-radius:999px; color:#fffaf0; font-family:inherit; }
+  .src-tag.west{ background:#46607a; } .src-tag.tcm{ background:#8a6a2e; } .src-tag.buddha{ background:#6d4f9e; }
+  .test-card h3{ font-size:19px; letter-spacing:4px; margin:2px 0 4px; }
+  .test-card p{ font-size:12px; color:var(--ink3); }
+  .test-card .t-base{ margin-top:6px; font-size:11px; color:var(--ink3); font-style:italic;
+    font-family:Georgia,"Times New Roman",serif; line-height:1.8; }
+  .quiz-card{ max-width:640px; margin:0 auto; }
+  .q-top{ display:flex; justify-content:space-between; align-items:center; color:var(--ink3);
+    font-size:12.5px; margin-bottom:12px; letter-spacing:1px; }
+  .q-bar{ height:5px; border-radius:3px; background:#efe6d0; overflow:hidden; margin-bottom:20px; }
+  .q-fill{ height:100%; background:linear-gradient(90deg,var(--zin),#d28a6a); width:0%;
+    transition:width .3s; border-radius:3px; }
+  .q-text{ font-size:17.5px; line-height:1.9; margin-bottom:18px; min-height:66px; }
+  .q-opt{ width:100%; text-align:left; font-family:inherit; cursor:pointer; display:block;
+    border:1px solid var(--line); background:#fffdf6; color:var(--ink); border-radius:10px;
+    padding:12px 18px; margin-bottom:10px; font-size:14.5px; transition:all .15s; line-height:1.8; }
+  .q-opt:hover{ border-color:var(--gold); background:#fdf6e6; }
+  .res-wrap{ text-align:center; }
+  .res-badge{ display:inline-block; font-size:12px; letter-spacing:4px; color:#fffaf0; border-radius:6px;
+    padding:4px 16px; margin-bottom:12px; }
+  .res-wrap h3{ font-size:25px; letter-spacing:6px; margin-bottom:10px; }
+  .res-note{ font-size:14px; color:var(--ink2); max-width:560px; margin:0 auto 14px; line-height:2.1; }
+  .res-sug{ text-align:left; border-top:1px dashed var(--line); padding-top:14px; margin:0 auto 16px;
+    max-width:560px; font-size:14px; color:var(--ink); }
+  .res-sug b{ color:var(--zin); }
+  .src-note{ max-width:560px; margin:8px auto 0; font-size:12px; color:var(--ink3);
+    border-top:1px dashed var(--line); padding-top:10px; }
+  .src-note b{ color:var(--zin); font-weight:bold; }
+  .share-block{ margin:14px auto 0; max-width:560px; background:#f7f0e0; border:1px dashed var(--line);
+    border-radius:12px; padding:14px 16px; text-align:left; }
+  .share-block .sh-h{ font-size:13.5px; color:var(--zin); font-weight:bold; letter-spacing:2px; margin-bottom:4px; }
+  .share-block .sh-sub{ font-size:12px; color:var(--ink2); margin-bottom:10px; }
+  .copy-area{ background:#fdf8ec; border:1px dashed var(--line); border-radius:10px;
+    padding:10px 12px; text-align:left; font-size:12.5px; color:var(--ink2); margin:4px 0 10px;
+    line-height:2; white-space:pre-wrap; max-height:180px; overflow:auto; }
+  .copy-area.phone{ min-height:44px; max-height:none; font-size:15px; padding:9px 12px; }
+  .btn-line{ display:flex; gap:10px; flex-wrap:wrap; }
+  .btn-line .mini-btn{ flex:1; padding:9px 4px; text-align:center; white-space:normal; }
+
+  /* ---------- 问答搜索（首页） ---------- */
+  .qa-hero{ max-width:680px; margin:0 auto; text-align:center; }
+  .qa-search{ display:flex; align-items:center; gap:10px; justify-content:center;
+    margin:16px auto 4px; max-width:620px; }
+  .qa-search input{ flex:1 1 0; min-width:0; font-family:inherit; font-size:16.5px;
+    padding:12px 22px; border:1px solid var(--line); border-radius:999px; background:#fffdf6;
+    color:var(--ink); outline:none; box-shadow:0 4px 16px rgba(90,70,35,.06); transition:all .2s; }
+  .qa-search input:focus{ border-color:var(--gold); box-shadow:0 0 0 4px rgba(185,142,78,.15); }
+  .qa-send{ flex:none; cursor:pointer; border:none; border-radius:999px;
+    background:linear-gradient(160deg,var(--zin),var(--zin-d)); color:#fffaf0;
+    padding:12px 22px; font-size:15px; letter-spacing:3px; font-family:inherit;
+    box-shadow:0 4px 14px rgba(120,90,40,.2); transition:all .15s; }
+  .qa-send:hover{ filter:brightness(1.07); }
+  .qa-send:active{ transform:translateY(1px); }
+  /* 发问后的“相关词条名字”候选列表 */
+  .qa-names{ display:grid; gap:10px; margin-top:2px; }
+  .qa-name{ width:100%; text-align:left; cursor:pointer; font-family:inherit;
+    border:1px solid var(--line); border-radius:12px; background:var(--card);
+    padding:12px 16px; transition:all .15s; box-shadow:0 2px 8px rgba(90,70,35,.04); }
+  .qa-name b{ display:block; font-size:15.5px; color:var(--ink); letter-spacing:1.5px; }
+  .qa-name small{ display:block; margin-top:4px; font-size:12.5px; color:var(--ink3); line-height:1.8; }
+  .qa-name:hover{ border-color:var(--zin); }
+  .qa-name:hover b{ color:var(--zin); }
+  .qa-backbar{ margin-bottom:12px; text-align:left; }
+  .qa-result{ max-width:720px; margin:20px auto 0; text-align:left; }
+  .qa-item{ border:1px solid var(--line); border-radius:14px; background:var(--card);
+    padding:20px 22px; margin-bottom:14px; box-shadow:0 3px 12px rgba(90,70,35,.05); }
+  .qa-item .qa-q{ font-size:18px; font-weight:bold; letter-spacing:1px; margin-bottom:6px; }
+  .qa-item .qa-meta{ font-size:12px; color:var(--ink3); margin-bottom:12px; }
+  .ans-row{ margin:10px 0; padding:12px 14px; border-radius:10px; line-height:2; font-size:14.5px; }
+  .ans-row .ar-tag{ display:inline-block; font-size:11px; letter-spacing:2px; padding:1px 9px;
+    border-radius:999px; color:#fffaf0; margin-right:8px; vertical-align:1px; }
+  .ans-row.west{ background:#f0f4f8; } .ans-row.tcm{ background:#f7f1e2; } .ans-row.bud{ background:#f3eef8; }
+  .ans-row.west .ar-tag{ background:#46607a; } .ans-row.tcm .ar-tag{ background:#8a6a2e; }
+  .ans-row.bud .ar-tag{ background:#6d4f9e; }
+  .ans-row .ar-quote{ margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);
+    font-size:13px; color:#7a5a3c; }
+  .ans-row .ar-quote .qq{ color:#8a5a2a; font-style:italic; }
+  .ans-row .ar-quote .raw{ color:var(--ink3); font-size:12px; font-style:italic; font-family:Georgia,serif; }
+  .ans-row .ar-ref{ margin-top:8px; font-size:12px; color:var(--ink3); }
+  .qa-test{ display:inline-block; margin-top:10px; }
+  .qa-more{ text-align:center; margin-top:14px; color:var(--ink3); font-size:13px; }
+  .qa-more button{ margin-top:6px; }
+  .qa-state{ text-align:center; margin:2px 0 16px; color:var(--ink2); font-size:13.5px;
+    letter-spacing:.5px; line-height:1.9; }
+  .qa-state strong{ color:var(--zin); }
+  .qa-none{ text-align:center; padding:26px 10px; color:var(--ink2); font-size:14px; line-height:2; }
+  .qa-none .mini-btn{ margin-top:6px; }
+
+  /* ---------- 文集 ---------- */
+  .essay-list{ max-width:720px; margin:0 auto; }
+  .essay{ cursor:pointer; padding:18px 20px; margin-bottom:12px; }
+  .essay .es-cat{ font-size:11px; letter-spacing:2px; color:#fff; padding:2px 10px; border-radius:999px; }
+  .essay h3{ font-size:18.5px; letter-spacing:1.5px; margin:8px 0 4px; }
+  .essay .es-lead{ font-size:13px; color:var(--ink2); }
+  .read-ov .essay-card{ background:var(--card); border-radius:16px; border:1px solid var(--line);
+    max-width:640px; width:100%; max-height:86vh; overflow-y:auto; padding:28px 26px; }
+  .read-ov h3{ font-size:22px; letter-spacing:2px; margin:10px 0; line-height:1.7; }
+  .read-ov .es-meta{ font-size:12.5px; color:var(--ink3); margin-bottom:14px; letter-spacing:2px; }
+  .read-ov p{ font-size:15px; line-height:2.15; margin-bottom:14px; text-align:justify; }
+
+  /* ---------- 预约弹层 ---------- */
+  .ask-ov .ask-card{ background:var(--card); border-radius:16px; border:1px solid var(--line);
+    width:100%; max-width:520px; max-height:90vh; overflow-y:auto; padding:28px 24px; position:relative; }
+  .ask-x{ position:absolute; top:12px; right:12px; border:none; background:#efe6d0; cursor:pointer;
+    width:30px; height:30px; border-radius:50%; font-size:15px; color:var(--ink2); font-family:inherit; }
+  .ask-x:hover{ background:#e3d5b6; }
+  .ask-card h3{ text-align:center; font-size:24px; letter-spacing:8px; margin-bottom:2px;
+    font-family:"KaiTi","STKaiti","楷体",serif; }
+  .ask-card .ask-sub{ text-align:center; font-size:13px; color:var(--ink2); margin-bottom:18px; }
+  .fld{ margin-bottom:14px; }
+  .fld label{ display:block; font-size:13px; letter-spacing:2px; color:var(--ink3); margin-bottom:6px; }
+  .fld input,.fld textarea{ font-family:inherit; width:100%; border:1px solid var(--line);
+    border-radius:10px; background:#fffdf6; padding:10px 14px; font-size:15px; color:var(--ink);
+    outline:none; }
+  .fld input:focus,.fld textarea:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(185,142,78,.14); }
+  .fld textarea{ resize:vertical; min-height:74px; }
+  .area-chip{ display:inline-block; cursor:pointer; border:1px solid var(--line); background:#fffdf6;
+    color:var(--ink2); border-radius:999px; padding:5px 13px; font-size:13px; margin:0 6px 8px 0;
+    font-family:inherit; letter-spacing:1px; transition:all .15s; }
+  .area-chip.on{ background:var(--zin); color:#fffaf0; border-color:var(--zin); }
+  .ask-go{ font-family:"KaiTi","STKaiti","楷体",serif; cursor:pointer; width:100%; border:none;
+    border-radius:10px; padding:13px 0; font-size:17px; letter-spacing:7px; color:#fffaf0;
+    background:linear-gradient(160deg,var(--zin),var(--zin-d)); box-shadow:0 5px 14px rgba(124,42,30,.25); }
+  .ask-go:hover{ transform:translateY(-1px); }
+  .priv{ font-size:11.5px; color:var(--ink3); text-align:center; margin-top:10px; letter-spacing:.5px; }
+  .done-panel{ text-align:center; }
+  .done-panel .ok-seal{ font-size:44px; color:var(--zin); margin:4px 0; }
+  .done-txt{ font-size:15.5px; color:var(--ink); margin:10px 0 6px; line-height:2; }
+  .done-txt b{ color:var(--zin); }
+  .wx-img{ width:150px; height:150px; border:1px solid var(--line); border-radius:12px;
+    object-fit:cover; margin:10px auto; display:block; background:#fff; }
+  .copy-area{ background:#f7f0e0; border:1px dashed var(--line); border-radius:10px;
+    padding:12px 14px; text-align:left; font-size:13.5px; color:var(--ink2); margin:14px 0; line-height:2; }
+  .btn-line{ display:flex; gap:10px; }
+  .btn-line .mini-btn{ flex:1; padding:10px 0; text-align:center; }
+
+  /* ---------- 悬浮预约 / toast / footer ---------- */
+  .fab{ position:fixed; right:18px; bottom:20px; z-index:60; cursor:pointer;
+    background:linear-gradient(160deg,var(--zin),var(--zin-d)); color:#fffaf0;
+    border:none; border-radius:999px; padding:12px 20px; font-size:15px; letter-spacing:3px;
+    font-family:"KaiTi","STKaiti","楷体",serif; box-shadow:0 8px 20px rgba(124,42,30,.4);
+    animation:fabPulse 2.6s ease-in-out infinite; }
+  @keyframes fabPulse{ 0%,100%{ box-shadow:0 8px 20px rgba(124,42,30,.4);}
+    50%{ box-shadow:0 8px 26px rgba(124,42,30,.6);} }
+  .fab small{ display:block; font-size:10px; letter-spacing:2px; text-align:center; font-family:inherit; }
+  #toast{ position:fixed; left:50%; bottom:86px; transform:translateX(-50%) translateY(10px);
+    background:rgba(43,37,28,.92); color:#f4ecdc; font-size:13.5px; letter-spacing:1px;
+    padding:10px 22px; border-radius:999px; opacity:0; pointer-events:none; transition:all .3s;
+    z-index:120; white-space:nowrap; }
+  #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  footer{ border-top:1px solid var(--line); margin-top:10px; padding:30px 16px 90px; text-align:center; }
+  footer .f-brand{ font-family:"KaiTi","STKaiti","楷体",serif; font-size:19px; letter-spacing:7px; margin-bottom:6px; }
+  footer p{ font-size:12px; color:var(--ink3); line-height:2.1; max-width:760px; margin:0 auto; }
+  footer a{ color:var(--zin); text-decoration:none; }
+  footer a:hover{ text-decoration:underline; }
+
+  @media (max-width:760px){
+    .top-in{ gap:8px; }
+    nav.tabs{ margin-left:0; width:100%; }
+    .tab-btn{ padding:6px 12px; font-size:13px; letter-spacing:2px; }
+    .hero-name{ font-size:36px; letter-spacing:8px; text-indent:8px; }
+    .hero-en{ letter-spacing:4px; }
+    .qa-lead{ letter-spacing:.5px; }
+    .sec-title{ font-size:26px; letter-spacing:6px; }
+    .fab{ padding:10px 15px; font-size:14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======== 顶栏 ======== -->
+<div class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#sec-home" data-go="home">
+      <span class="seal">心</span>
+      <span><b>心斋</b><small>心理学 · 修习馆</small></span>
+    </a>
+    <nav class="tabs">
+      <button class="tab-btn on" data-tab="home">问心</button>
+      <button class="tab-btn" data-tab="lab">自测 · 阅读</button>
+      <button class="tab-btn" data-tab="know">词典 · 练习</button>
+    </nav>
+  </div>
+</div>
+
+<!-- ======== 首页 · 问心 · 解结 ======== -->
+<main class="wrap">
+<section id="sec-home" class="sec on" style="padding-top:12px;">
+  <div class="hero">
+    <div class="moon"></div>
+    <div class="hero-name">心斋</div>
+    <div class="hero-en">A Place to Still the Mind</div>
+    <!-- 邻馆引路：玄学馆（悬于右缘，不扰主体） -->
+    <a class="hall-side" id="sisterHall" href="#" target="_blank" rel="noopener"
+      aria-label="深情猫玄学馆 · 结缘四馆" title="深情猫玄学馆 · 结缘四馆（新窗打开）">
+      <img class="hs-seal" src="img/lantern.png" alt="深情猫玄学馆 · 引路灯">
+      <span class="hs-txt">结缘</span>
+    </a>
+  </div>
+
+  <!-- 问心 · 问答搜索（先输入发送，再列相关词条名，点开细读） -->
+  <div class="qa-hero">
+    <div class="qa-search">
+      <input id="qaInput" type="search" autocomplete="off"
+        placeholder="心里有卡点？写下来，如：总是拖延 / 睡不着 / 爱发脾气…" maxlength="40">
+      <button type="button" class="qa-send" id="qaSend">问 一 问</button>
+    </div>
+    <div class="qa-lead">写一句心里的卡点，点「问一问」；先从相关条目里挑最像的一个，再打开细读。</div>
+  </div>
+  <div class="qa-result" id="qaResult"></div>
+
+  <div class="z-sep">—— ✦ ——</div>
+  <div class="daily-grid">
+    <div class="card daily-card">
+      <span class="daily-tag">今日一理 · 识心</span>
+      <div class="dc-quote" id="dailyIdea"></div>
+      <div class="dc-note" id="ideaNote"></div>
+      <div class="dc-foot">
+        <div class="dc-nav">
+          <button class="mini-btn" id="ideaPrev">上一则</button>
+          <span id="ideaDate">第 0 则</span>
+          <button class="mini-btn" id="ideaNext">下一则</button>
+        </div>
+        <button class="mini-btn share-btn" id="shareIdea">分享这句</button>
+      </div>
+    </div>
+    <div class="card daily-card">
+      <span class="daily-tag alt">今日一练 · 养定</span>
+      <div class="dc-quote" id="dailyDo"></div>
+      <div class="dc-note" id="doNote"></div>
+      <div class="dc-foot">
+        <div class="dc-nav">
+          <button class="mini-btn" id="doPrev">上一练</button>
+          <span id="doDate">第 0 练</span>
+          <button class="mini-btn" id="doNext">下一练</button>
+        </div>
+        <button class="mini-btn share-btn" id="shareDo">分享这练</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="z-sep">—— ✦ ——</div>
+  <div class="tri">
+    <div class="card go-card" data-go="qa">
+      <div class="no">问 · 心</div>
+      <h3>再问一题</h3>
+      <p>把困惑写成一句话，三重视角拆开看。</p>
+    </div>
+    <div class="card go-card" data-go="tests">
+      <div class="no">测 · 心</div>
+      <h3>照一照</h3>
+      <p>焦虑、低落、拖延…照一照，指一条可练的路。</p>
+    </div>
+    <div class="card go-card" data-go="effects">
+      <div class="no">学 · 练</div>
+      <h3>词典 · 练习</h3>
+      <p>不懂的名词先查词典，再配一个静心专注的计时小工具。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======== 词典 · 心理词典（词典·练习页上） ======== -->
+<section id="sec-effects" class="sec">
+  <div class="sec-kicker">识 理</div>
+  <div class="sec-title">心理词典 · 三流并汇</div>
+  <p class="sec-sub">「西」现代心理学、「中」中医心理学、「佛」佛家心法，皆配白话。卡片可筛选比对，道理看懂了，就到下面去练。</p>
+  <div class="fx-tools">
+    <input id="fxSearch" type="search" placeholder="搜一搜：如「首因」「七情」「我执」…">
+  </div>
+  <div class="fx-tools" id="fxCats"></div>
+  <div class="fx-grid" id="fxGrid"></div>
+  <div class="fx-count" id="fxCount"></div>
+  <div class="z-sep">—— ✦ ——</div>
+  <div class="card" style="text-align:center; background:#faf3e2;">
+    <p style="font-size:14.5px; color:#6d6251;">道理看了不少，最要紧的还是落到"练"上。</p>
+    <button class="mini-btn" id="goToPractice" style="margin-top:10px; padding:8px 26px;">去练定 · 静心计时 →</button>
+  </div>
+</section>
+
+<!-- ======== 练习 · 静心专注工具（词典·练习页下） ======== -->
+<section id="sec-practice" class="sec">
+  <div class="sec-kicker">练 定</div>
+  <div class="sec-title">静心 · 专注</div>
+  <p class="sec-sub">西方心理学说专注力像肌肉，越练越强；中医讲"静则神藏"；佛法说心要"制心一处"。三条路指向同一件事：天天练一会儿，定力是自己的。</p>
+
+  <div class="statline" style="grid-template-columns:repeat(4,1fr); margin-top:22px;">
+    <div class="stat"><b id="stToday">0</b><span>今日分钟</span></div>
+    <div class="stat"><b id="stStreak">0</b><span>连续天数</span></div>
+    <div class="stat"><b id="stTotal">0</b><span>累计分钟</span></div>
+    <div class="stat"><b id="stSits">0</b><span>静心次数</span></div>
+  </div>
+  <div class="card" style="text-align:center; margin-bottom:18px;">
+    <div class="week-dots" id="weekDots"></div>
+  </div>
+
+  <div class="do-grid">
+    <div class="card">
+      <div class="tool-head"><h3>数息安坐</h3><span>安那般那 · 从一数到十</span></div>
+      <p class="how" style="margin-top:6px;">端身正坐，眼半闭，把心放在鼻端呼吸上。<b>吸气时心里知"进"，呼气时数"一、二……十"，数乱或忘了，从一再数。</b>不追念头，来了就放，这是练专注的第一课。</p>
+      <div class="dur-row" id="breathDurRow"></div>
+      <button class="big-btn" id="breathStart">开 始 数 息</button>
+    </div>
+    <div class="card">
+      <div class="tool-head"><h3>一事一毕</h3><span>专注计时 · 只做眼前这一件</span></div>
+      <p class="how" style="margin-top:6px;">挑一件正在卡你的事，<b>定一个时间，关消息、只做它</b>。计时结束前，天塌下来也先放一边。做完记得停一停，给自己记一功。</p>
+      <div class="dur-row" id="focusDurRow"></div>
+      <button class="big-btn quiet" id="focusStart">开 始 专 注</button>
+    </div>
+  </div>
+  <p class="how" style="text-align:center; margin-top:18px;">提醒：练定不求一次多久，求<b>天天都练</b>。哪怕每天三分钟，日积月累，都是你回给自己的利息。</p>
+</section>
+
+<!-- ======== 自测 · 照见（自测·阅读页上） ======== -->
+<section id="sec-tests" class="sec">
+  <div class="sec-kicker">照 一 照</div>
+  <div class="sec-title">心理测评 · 标准量表</div>
+  <p class="sec-sub">主流量表按原版计分与分档（抑郁 PHQ-9 · 焦虑 GAD-7 · 压力 PSS-10 · 失眠 AIS-8 · 孤独 UCLA · 自尊 RSES · 大五 BFI-10 · MBTI 16 型 等），另保留中医·佛家视角的自省三则。只观当下状态，不作诊断；测完附标准解析与可练的一小步。</p>
+  <div class="test-grid" id="testList" style="margin-top:20px;"></div>
+  <div class="quiz-card" id="quizBox" style="display:none; margin-top:24px;">
+    <div class="q-top"><span id="quizName">测评</span><span id="qStep">第 1 / 8 题</span></div>
+    <div class="q-bar"><div class="q-fill" id="qFill"></div></div>
+    <div class="q-text" id="qText"></div>
+    <div id="qOpts"></div>
+    <button class="mini-btn" id="quizBack" style="margin-top:6px;">← 不测了，回去看看</button>
+  </div>
+  <div class="res-wrap" id="quizRes" style="display:none; margin-top:24px;">
+    <span class="res-badge" id="resBadge" style="background:#a0392a;">测评结果</span>
+    <h3 id="resTitle"></h3>
+    <p class="res-note" id="resNote"></p>
+    <div class="res-sug" id="resSug"></div>
+    <div class="src-note" id="resSrcNote"></div>
+
+    <!-- 自测结果：留号递馆主 / 微信二维码 / 复制 / 邮箱 -->
+    <div class="share-block">
+      <div class="sh-h">测完了？把这份结果带给馆主</div>
+      <div class="sh-sub">两种递法随你挑：<b>① 留个手机号（推荐）</b>——点下方"留号递结果"，这份结果与手机号会直达馆主邮箱，1~2 日内回电陪你细聊 10 分钟；<b>② 直接加微信</b>——长按识别下方二维码，或复制结果粘贴过去；也可发馆主邮箱（<b id="mailAddr"></b>）。只用于陪你细聊，不留存不外传。</div>
+      <div id="resQrWrap" style="display:none; text-align:center; margin-bottom:2px;">
+        <img id="resQrImg" class="wx-img" src="" onerror="this.style.display='none'" alt="馆主微信二维码">
+        <div style="font-size:12.5px; color:#a0392a; margin-top:-6px; margin-bottom:4px;">长按识别 · 或加微信：<b id="resWxId"></b></div>
+      </div>
+      <div class="copy-area" id="resReport"></div>
+      <div class="fld" style="text-align:left;">
+        <label>手机号（推荐 · 馆主回电用）</label>
+        <input id="reportPhone" class="copy-area phone" type="tel" inputmode="numeric" maxlength="11"
+          placeholder="留了，馆主打给你，你只管接">
+      </div>
+      <button class="big-btn" type="button" id="submitReport" style="margin-top:4px; font-size:15px; letter-spacing:3px;">留 号 递 结 果 · 馆 主 回 电 细 聊</button>
+      <div class="btn-line" style="margin-top:10px;">
+        <button class="mini-btn" id="copyReport">先不递 · 只复制结果</button>
+        <button class="mini-btn" id="mailReport">改用邮箱发送</button>
+        <button class="mini-btn" id="wxReport" style="border-color:#2f6f4e; color:#2f6f4e;">改用微信发送</button>
+      </div>
+      <p class="priv" style="text-align:left;">隐私承诺：联系方式仅用于陪你细聊，不存不外传、不做营销轰炸。手机号非必填，填了馆主才回得了电。</p>
+      <div id="reportNote" style="display:none;"></div>
+    </div>
+
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:14px;">
+      <button class="mini-btn" id="quizAgain">再测一次</button>
+      <button class="mini-btn" id="quizMore">换个测评看看</button>
+      <button class="mini-btn" id="askAfterTest" style="background:#a0392a; color:#fffaf0; border-color:#a0392a;">想深入聊聊 → 问心</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======== 文集 ======== -->
+<section id="sec-reads" class="sec">
+  <div class="sec-kicker">文 · 集</div>
+  <div class="sec-title">心斋随笔</div>
+  <p class="sec-sub">不灌理论，只说人话。几篇短文，写给在事上打转、心里没歇的人。</p>
+  <div class="essay-list" id="readList" style="margin-top:20px;"></div>
+</section>
+</main>
+
+<!-- ======== 页脚 ======== -->
+<footer>
+  <div class="f-brand">心斋 · 心理学修习馆</div>
+  <p>本馆内容融汇东西：西方心理学之"研究"，东方修心之法。仅作自我观照与成长参考，不做疾病诊断，不能替代正规医疗与心理咨询。
+  心是镜子，理是指月之指，路终究要你自己一步步走。</p>
+  <p style="margin-top:10px;">与邻馆 <a href="#" id="footHall" style="color:var(--zin); text-decoration:none; font-weight:bold;">深情猫玄学馆</a> 互为照应 · 一馆修心，四馆问命</p>
+</footer>
+
+<!-- 悬浮预约 -->
+<button class="fab" id="askFab">问心<span style="font-size:0;">·</span><small>解心结 · 留号约回电</small></button>
+<div id="toast"></div>
+
+<!-- ======== 计时浮层 ======== -->
+<div class="ov hidden" id="timerOv">
+  <div class="timer-card">
+    <h3 id="tmTitle">数息安坐</h3>
+    <div class="ring-box">
+      <svg class="r" width="240" height="240" viewBox="0 0 240 240">
+        <circle class="ring-bg" cx="120" cy="120" r="104"></circle>
+        <circle class="ring" id="ring" cx="120" cy="120" r="104"></circle>
+      </svg>
+      <div class="ring-c">
+        <div class="breath-ball" id="breathBall" style="display:none;"></div>
+        <div class="tm-clock" id="tmClock">00:00</div>
+        <div class="tm-phase" id="tmPhase"></div>
+      </div>
+    </div>
+    <div class="timer-btns">
+      <button class="mini-btn" id="tmPause">暂 停</button>
+      <button class="mini-btn" id="tmStop">结 束</button>
+    </div>
+    <p class="tm-done" id="tmDone" style="display:none;"></p>
+  </div>
+</div>
+
+<!-- ======== 文章阅读浮层 ======== -->
+<div class="ov hidden read-ov" id="readOv">
+  <div class="essay-card">
+    <span class="es-cat" id="readCat" style="background:#a0392a;">随笔</span>
+    <h3 id="readTitle"></h3>
+    <div class="es-meta" id="readMeta"></div>
+    <div id="readBody"></div>
+    <div style="text-align:center; margin-top:8px;">
+      <button class="mini-btn" id="readClose">合 卷</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== 预约弹层 ======== -->
+<div class="ov hidden ask-ov" id="askOv">
+  <div class="ask-card">
+    <button class="ask-x" id="askClose">✕</button>
+    <div id="askForm">
+      <h3>问心 · 解结</h3>
+      <p class="ask-sub">一句话说清你的结。推荐留手机号——馆主 1~2 日内回电，陪你聊 10 分钟；不方便，微信、邮箱也能递到。</p>
+      <input type="text" name="_honey" id="honey" tabindex="-1" autocomplete="off" aria-hidden="true"
+        style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;">
+      <div class="fld">
+        <label>你最卡在哪个地方？</label>
+        <div id="askChips"></div>
+      </div>
+      <div class="fld">
+        <label>心里的结，说一句</label>
+        <textarea id="aMsg" maxlength="120" placeholder="例：工作三年越做越空，不知道要不要换。"></textarea>
+      </div>
+      <div class="fld">
+        <label>怎么称呼你（选填）</label>
+        <input id="aName" maxlength="12" placeholder="如：张女士 / 猫猫">
+      </div>
+      <div class="fld">
+        <label>手机号（推荐 · 馆主回电用）</label>
+        <input id="aPhone" type="tel" inputmode="numeric" maxlength="11" placeholder="留了，馆主打给你，你只管接">
+      </div>
+      <div class="fld">
+        <label>微信号（选填，加微信更快）</label>
+        <input id="aWx" maxlength="30" placeholder="有就填，没有也可用邮箱">
+      </div>
+      <button class="ask-go" id="askSubmit">递 心 结 · 约 回 访</button>
+      <p class="priv">隐私承诺：联系方式仅用于回访，不存不外传、不做营销轰炸。</p>
+    </div>
+    <div class="done-panel" id="askDone" style="display:none;"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="data_effects.js"></script>
+<script src="data_essays.js"></script>
+<script src="data_ask.js"></script>
+<script src="data_tests.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
