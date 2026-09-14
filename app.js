@@ -6,6 +6,16 @@
  * ============================================================ */
 (function () {
   'use strict';
+  /* 搜索内核对外留一份只读引用：供回归页（_verify_ask_search.html）验证命中率。
+     内核函数在 IIFE 内以函数声明形式存在，已提升，可在此转出；
+     页面逻辑本身不依赖这份引用，删掉也不影响前台。 */
+  if (typeof window !== 'undefined') {
+    window.QA_CORE = {
+      score: qaScore, text: qaText, bigrams: qaBigrams, dice: qaDice,
+      topics: (typeof ASKTOPICS !== 'undefined' ? ASKTOPICS : null),
+      min: 6
+    };
+  }
   function $(id) { return document.getElementById(id); }
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -129,6 +139,55 @@
   });
   renderIdea(); renderDo();
 
+  function renderBilingualGuide(id, title, titleEn, note) {
+    var box = $(id);
+    if (!box || !window.BILINGUAL_GUIDE) return;
+    var html = '<div class="guide-head"><div class="guide-title">' + esc(title) +
+      '<small class="guide-en">' + esc(titleEn) + '</small></div><div class="guide-note guide-zh">' + esc(note) + '</div>' +
+      '<div class="guide-mode" role="group" aria-label="Language"><button type="button" data-guide-mode="both" class="on">双语</button>' +
+      '<button type="button" data-guide-mode="zh">中文</button><button type="button" data-guide-mode="en">EN</button></div></div><div class="guide-grid">';
+    for (var i = 0; i < BILINGUAL_GUIDE.length; i++) {
+      var it = BILINGUAL_GUIDE[i];
+      html += '<article class="card guide-step"><div class="guide-num">' + esc(it.stepEn) + '</div>' +
+        '<h3 class="guide-zh">' + esc(it.title) + '</h3><div class="guide-en-title guide-en">' + esc(it.titleEn) + '</div>' +
+        '<p class="guide-zh">' + esc(it.text) + '</p><p class="guide-en">' + esc(it.textEn) + '</p>' +
+        '<p class="guide-practice guide-zh">' + esc(it.practice) + '<span class="guide-en">' + esc(it.practiceEn) + '</span></p></article>';
+    }
+    html += '</div>';
+    if (id === 'dictGuide' && window.BILINGUAL_TERMS) {
+      html += '<div class="bilingual-samples"><div class="sample-label">核心词条 · Core terms</div><div class="term-grid">';
+      for (var j = 0; j < BILINGUAL_TERMS.length; j++) {
+        var term = BILINGUAL_TERMS[j];
+        html += '<article class="card term-card"><h4 class="guide-zh">' + esc(term.term) + '</h4><div class="term-en guide-en">' + esc(term.termEn) +
+          '</div><p class="guide-zh">' + esc(term.meaning) + '</p><p class="guide-en">' + esc(term.meaningEn) + '</p><p class="term-practice guide-zh">' + esc(term.practice) + '</p></article>';
+      }
+      html += '</div></div>';
+    }
+    if (id === 'readGuide' && window.BILINGUAL_REFLECTIONS) {
+      html += '<div class="bilingual-samples"><div class="sample-label">双语短随笔 · Bilingual reflections</div><div class="reflection-list">';
+      for (var k = 0; k < BILINGUAL_REFLECTIONS.length; k++) {
+        var reflection = BILINGUAL_REFLECTIONS[k];
+        html += '<article class="card reflection-card"><h3 class="guide-zh">' + esc(reflection.title) + '</h3><div class="reflection-en guide-en">' + esc(reflection.titleEn) +
+          '</div><p class="guide-zh">' + esc(reflection.body) + '</p><p class="guide-en">' + esc(reflection.bodyEn) + '</p><p class="reflection-action guide-zh">' + esc(reflection.action) +
+          '<span class="guide-en">' + esc(reflection.actionEn) + '</span></p></article>';
+      }
+      html += '</div></div>';
+    }
+    html += '<p class="guide-safety">' + esc(BILINGUAL_SAFETY.zh) + '<br>' + esc(BILINGUAL_SAFETY.en) + '</p>';
+    box.innerHTML = html;
+    var modeButtons = box.querySelectorAll('[data-guide-mode]');
+    for (var m = 0; m < modeButtons.length; m++) {
+      modeButtons[m].addEventListener('click', function () {
+        var mode = this.getAttribute('data-guide-mode');
+        box.classList.remove('mode-zh', 'mode-en');
+        if (mode !== 'both') box.classList.add('mode-' + mode);
+        var buttons = box.querySelectorAll('[data-guide-mode]');
+        for (var n = 0; n < buttons.length; n++) buttons[n].classList.toggle('on', buttons[n] === this);
+      });
+    }
+  }
+  renderBilingualGuide('dictGuide', '解苦路径 · 先看清，再行动', 'A Path Through Suffering · See clearly, then act', '词典里的概念，最后要回到今天的一步');
+
   /* ================= 识理 · 效应词典（西 · 中 · 佛 分类） ================= */
   var fxGrid = $('fxGrid'), fxCat = '' , fxWord = '';
   function srcOf(it) {
@@ -138,7 +197,160 @@
     return '西';
   }
   var CAT_COLOR = { 西: '#46607a', 中: '#8a6a2e', 佛: '#6d4f9e' };
-  var SRC_LABEL = { 西: '现代心理', 中: '中医心理', 佛: '佛家心法' };
+  var SRC_LABEL = { 西: '心理学', 中: '中医', 佛: '佛学' };
+
+  /* ================= 三部互链：问心 ⇄ 词典（不新增文案，只把已有内容连起来） =================
+     两个方向：
+       问心 → 词典：三个视角正文里出现词条名/别名，自动成为可点链接（每段最多 3 个）
+       词典 → 问心：每条词卡底部自动回推「相关的困扰」，点回问心那一条
+     别名表在 data_links.js，可随内容增补。 */
+  var QA_PH = '\u0001';   /* 链接占位符：先查词再转义，避免在 HTML 里误匹配 */
+  var QA_LINK_MAX = 3;    /* 一段正文最多挂几个链接，多了就成了广告 */
+  var qaBodyCache = {}, dictAskCache = {};
+
+  function dictNames(it, withPlain) {
+    /* 一条词典词的所有写法：词条名 + 专指别名（+ 口语别名，仅回推用），长的排前面 */
+    var a = [it.t].concat((window.DICT_ALIAS && DICT_ALIAS[it.t]) || []);
+    if (withPlain) a = a.concat((window.DICT_ALIAS_PLAIN && DICT_ALIAS_PLAIN[it.t]) || []);
+    var out = [];
+    for (var i = 0; i < a.length; i++) if (a[i] && out.indexOf(a[i]) < 0) out.push(a[i]);
+    out.sort(function (x, y) { return y.length - x.length; });
+    return out;
+  }
+  function closestCls(el, cls) {
+    while (el && el.nodeType !== 1) el = el.parentNode;   /* 跳过文本节点 */
+    while (el) {
+      if ((' ' + (el.className || '') + ' ').indexOf(' ' + cls + ' ') >= 0) return el;
+      el = el.parentNode;
+    }
+    return null;
+  }
+  function qaBodyText(t) {
+    if (!qaBodyCache[t.name]) {
+      var v = [t.main, t.west, t.tcm, t.bud], s = '';
+      for (var i = 0; i < v.length; i++) if (v[i] && v[i].ans) s += v[i].ans + ' ';
+      qaBodyCache[t.name] = s;
+    }
+    return qaBodyCache[t.name];
+  }
+  function qaAutoLink(txt) {
+    /* 返回已转义的 HTML：命中的词条变成 <a class="qa-dlink">，其余照旧 */
+    if (!txt) return '';
+    if (!window.EFFECTS || !window.DICT_ALIAS) return esc(txt);
+    var hits = [], i, j, k;
+    for (i = 0; i < EFFECTS.length && hits.length < QA_LINK_MAX; i++) {
+      var names = dictNames(EFFECTS[i], false);
+      for (j = 0; j < names.length && hits.length < QA_LINK_MAX; j++) {
+        var w = names[j], pos = txt.indexOf(w);
+        if (pos < 0) continue;
+        var lap = false;
+        for (k = 0; k < hits.length; k++) {
+          if (pos < hits[k].end && pos + w.length > hits[k].start) { lap = true; break; }
+        }
+        if (lap) continue;
+        hits.push({ start: pos, end: pos + w.length, term: EFFECTS[i].t, word: w });
+        break;   /* 同一条词只挂一次，且一处命中就够 */
+      }
+    }
+    if (!hits.length) return esc(txt);
+    hits.sort(function (a, b) { return a.start - b.start; });
+    var out = '', cur = 0;
+    for (i = 0; i < hits.length; i++) {
+      out += esc(txt.slice(cur, hits[i].start)) + QA_PH + i + '\u0002';
+      cur = hits[i].end;
+    }
+    out += esc(txt.slice(cur));
+    for (i = 0; i < hits.length; i++) {
+      out = out.replace(QA_PH + i + '\u0002', '<a href="#" class="qa-dlink" data-dict="' +
+        esc(hits[i].term) + '">' + esc(hits[i].word) + '</a>');
+    }
+    return out;
+  }
+  function dictRelatedAsks(it) {
+    /* 词卡底部回推 3 条问心：人工挑的优先，其余走字面匹配（结果缓存） */
+    if (!dictAskCache[it.t]) {
+      var hand = (window.DICT_LINKS && DICT_LINKS[it.t]) || null;
+      if (hand) {
+        var picked = [];
+        for (var h = 0; h < hand.length; h++) {
+          for (var q = 0; q < ASKTOPICS.length; q++) {
+            if (ASKTOPICS[q].name === hand[h]) { picked.push(ASKTOPICS[q]); break; }
+          }
+        }
+        dictAskCache[it.t] = picked;
+        return dictAskCache[it.t];
+      }
+      var ns = dictNames(it, true), best = [];
+      for (var i = 0; i < ASKTOPICS.length; i++) {
+        var t = ASKTOPICS[i];
+        var head = (t.name || '') + ' ' + ((t.tags || []).join(' '));
+        var bd = qaBodyText(t), s = 0;
+        for (var j = 0; j < ns.length; j++) {
+          if (head.indexOf(ns[j]) >= 0) s += 10;
+          else if (bd.indexOf(ns[j]) >= 0) s += 3;
+        }
+        if (s) best.push({ t: t, s: s });
+      }
+      best.sort(function (a, b) { return b.s - a.s; });
+      dictAskCache[it.t] = best.slice(0, 3).map(function (x) { return x.t; });
+    }
+    return dictAskCache[it.t];
+  }
+  function dictTermLink(t) {
+    /* 三部互照里的词条名：词典里找得到才可点，找不到就只显示文字 */
+    for (var i = 0; i < EFFECTS.length; i++) {
+      if (EFFECTS[i].t === t) return '<a href="#" class="fx-ask" data-dict="' + esc(t) + '">' + esc(t) + '</a>';
+    }
+    return esc(t);
+  }
+  function openDictTerm(term) {
+    goTab('dict');
+    fxCat = ''; fxWord = term;
+    var inp = $('fxSearch'); if (inp) inp.value = term;
+    renderCats(); renderFx();
+    var all = fxGrid.querySelectorAll('.fx'), card = null;
+    for (var i = 0; i < all.length; i++) if (all[i].getAttribute('data-term') === term) card = all[i];
+    if (!card) return;
+    card.classList.add('open', 'fx-hit');
+    setTimeout(function () { if (card.scrollIntoView) card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 280);
+    setTimeout(function () { card.classList.remove('fx-hit'); }, 3200);
+  }
+  function openAskTopic(name) {
+    for (var i = 0; i < ASKTOPICS.length; i++) {
+      if (ASKTOPICS[i].name === name) {
+        goTab('home');
+        qaInputRaw = ASKTOPICS[i].name;
+        var inp = $('qaInput'); if (inp) inp.value = ASKTOPICS[i].name;
+        qaOpenTopic(ASKTOPICS[i]);
+        return;
+      }
+    }
+  }
+  function bindDictLinks(root, capture) {
+    /* 词典卡片本身点击会折叠，用捕获阶段先截住链接的点击 */
+    if (!root) return;
+    root.addEventListener('click', function (e) {
+      var el = closestCls(e.target, 'fx-ask');
+      if (!el) return;
+      e.preventDefault(); e.stopPropagation();
+      if (el.getAttribute('data-ask')) openAskTopic(el.getAttribute('data-ask'));
+      else openDictTerm(el.getAttribute('data-dict'));
+    }, !!capture);
+  }
+
+  function renderRelations() {
+    var box = $('fxRelations');
+    if (!box || !window.LINKED_THEMES) return;
+    var html = '<div class="relation-wrap"><div class="relation-title">三部互照 · One concern, three ways of seeing</div><div class="relation-list">';
+    for (var i = 0; i < LINKED_THEMES.length; i++) {
+      var it = LINKED_THEMES[i];
+      html += '<article class="card relation-card"><h3>' + esc(it.title) + '</h3><div class="relation-en">' + esc(it.en) + '</div>' +
+        '<div class="relation-lane psych"><b>心理学 · ' + dictTermLink(it.psych) + '</b><span>' + esc(it.psychNote) + '</span></div>' +
+        '<div class="relation-lane tcm"><b>中医 · ' + dictTermLink(it.tcm) + '</b><span>' + esc(it.tcmNote) + '</span></div>' +
+        '<div class="relation-lane buddhist"><b>佛学 · ' + dictTermLink(it.buddhist) + '</b><span>' + esc(it.buddhistNote) + '</span></div></article>';
+    }
+    box.innerHTML = html + '</div></div>';
+  }
   function renderCats() {
     var box = $('fxCats'); box.innerHTML = '';
     function mk(label, key, on) {
@@ -174,6 +386,16 @@
       var s = srcOf(it);
       var c = document.createElement('div');
       c.className = 'card fx';
+      var rel = dictRelatedAsks(it), relHtml = '';
+      if (rel.length) {
+        relHtml = '<div class="fx-links"><span class="fx-links-lbl">相关的困扰：</span>';
+        for (var m = 0; m < rel.length; m++) {
+          var rn = rel[m].name || rel[m].q;
+          relHtml += '<a class="fx-ask" data-ask="' + esc(rn) + '">' + esc(rn) + '</a>';
+        }
+        relHtml += '</div>';
+      }
+      c.setAttribute('data-term', it.t);
       c.innerHTML =
         '<span class="cat" style="background:' + (CAT_COLOR[s] || '#8a6a2e') + '">' + esc(SRC_LABEL[s]) + ' · ' + esc(it.cat) + '</span>' +
         '<div class="fx-t">' + esc(it.t) + '</div>' +
@@ -183,6 +405,7 @@
           '<div><span class="lbl">为何会这样：</span>' + esc(it.why) + '</div><br>' +
           '<div><span class="lbl">身边例子：</span>' + esc(it.scene) + '</div><br>' +
           '<div><span class="lbl">一句心法：</span>' + esc(it.cure) + '</div>' +
+          relHtml +
         '</div>';
       c.addEventListener('click', function () { this.classList.toggle('open'); });
       fxGrid.appendChild(c);
@@ -196,7 +419,9 @@
       (fxWord || fxCat ? '（当前有筛选）' : ' · 全库配比 ' + wc + ' 西 / ' + tc + ' 中 / ' + fc + ' 佛');
   }
   $('fxSearch').addEventListener('input', function () { fxWord = this.value; renderFx(); });
-  renderCats(); renderFx();
+  bindDictLinks(fxGrid, true);            /* 卡片内的链接要先于“点卡片折叠”生效 */
+  bindDictLinks($('fxRelations'), false); /* 三部互照里的词条名也能点进词典 */
+  renderCats(); renderRelations(); renderFx();
 
   /* ================= 练定 · 打卡记账 ================= */
   var WD = ['日', '一', '二', '三', '四', '五', '六'];
@@ -538,14 +763,58 @@
     for (var i = 0; i < TESTS.length; i++) if (TESTS[i].id === id) return TESTS[i].name;
     return '';
   }
+  /* ===== 问心搜索内核（纯函数；页面与回归脚本 _verify_ask_search.js 共用） ===== */
+  /* @qa-core:start */
+  function qaExtraFor(t) {
+    var extra = (window.ASK_BILINGUAL && ASK_BILINGUAL[t.name]) ||
+      (window.ASK_BILINGUAL_MORE && ASK_BILINGUAL_MORE[t.name]);
+    if (!extra) return null;
+    var copy = {};
+    for (var k in extra) if (extra.hasOwnProperty(k)) copy[k] = extra[k];
+    copy.en = copy.en || '';
+    copy.enZh = copy.enZh || '';
+    copy.terms = copy.terms || copy.searchEn || '';
+    /* 心斋层：优先用 compassion；精简版词条没写这两个字段，
+       把它们已写好的安抚语 psychSupplementZh / psychSupplementEn 直接上提，
+       全站 86 条层级一致，且不新增一个字 */
+    copy.compassion = copy.compassion || copy.psychSupplementZh || '';
+    copy.compassionEn = copy.compassionEn || copy.psychSupplementEn || '';
+    /* 心斋两段式（data_ask_care.js）：新写的陪伴语 + 佛学开示在这里接上，
+       有则覆盖上面的兜底，没有则完全不影响原版式 */
+    var care = (typeof window !== 'undefined' && window.ASK_CARE) || null;
+    var careOne = care ? care[t.name] : null;
+    if (careOne) {
+      if (careOne.compassion) copy.compassion = careOne.compassion;
+      if (careOne.compassionEn) copy.compassionEn = careOne.compassionEn;
+      copy.dharma = careOne.dharma || '';
+      copy.dharmaEn = careOne.dharmaEn || '';
+    }
+    /* 学术式补充优先用 psychZh / psychEn（psychSupplement* 作兜底）；
+       psychMainEn 是 psychAnsEn 的备用英文译法 */
+    copy.psychZh = copy.psychZh || '';
+    copy.psychEn = copy.psychEn || '';
+    copy.psychAnsEn = copy.psychAnsEn || copy.psychMainEn || '';
+    return copy;
+  }
+  function qaZhWords(t) {
+    /* 客户的口语说法（data_ask_queries.js）：命中就说明这条正是他想问的 */
+    var all = (typeof ASK_QUERIES !== 'undefined' && ASK_QUERIES) ||
+      (typeof window !== 'undefined' && window.ASK_QUERIES) || null;
+    var q = all && all[t.name];
+    return (q && q.zh) ? q.zh : [];
+  }
   function qaText(t) {
-    /* 一个词条的全部可搜文本：标题 + 原问题 + 标签 + 三个视角正文 */
+    /* 一个词条的全部可搜文本：标题 + 原问题 + 标签 + 口语词 + 三视角正文 + 英文层 */
     var parts = [t.name, t.q];
     if (t.tags) parts.push(t.tags.join(' '));
+    var qz = qaZhWords(t);
+    if (qz.length) parts.push(qz.join(' '));
     var views = [t.main, t.west, t.tcm, t.bud];
     for (var i = 0; i < views.length; i++) {
       if (views[i] && views[i].ans) parts.push(views[i].ans);
     }
+    var extra = qaExtraFor(t);
+    if (extra) parts.push(extra.nameEn, extra.queryEn, extra.searchEn, extra.en, extra.terms);
     return parts.join(' ').toLowerCase();
   }
   function qaBigrams(s) {
@@ -564,20 +833,156 @@
     for (k in b) { if (b.hasOwnProperty(k)) { tb += b[k]; if (a[k]) n += Math.min(a[k], b[k]); } }
     return (ta + tb) ? (2 * n) / (ta + tb) : 0;
   }
+  function qaSameText(a, b) {
+    /* 两段话是否基本重复：用于避免同一句在页面上说两遍 */
+    var na = (a || '').replace(/[\s“”"'‘’（）()《》·，。；、！？：,.!?;:—-]/g, '');
+    var nb = (b || '').replace(/[\s“”"'‘’（）()《》·，。；、！？：,.!?;:—-]/g, '');
+    if (!na || !nb) return false;
+    if (na === nb || na.indexOf(nb) >= 0 || nb.indexOf(na) >= 0) return true;
+    return qaDice(qaBigrams(na), qaBigrams(nb)) >= 0.6;
+  }
+  /* 英文停用词：切词后只留实词，避免 "i / my / feel" 把分数冲淡 */
+  var QA_STOP = (function () {
+    var a = ('a an the and or but if then than that this these those i me my mine you your yours it its is am are ' +
+      'was were be been being do does did doing have has had having will would shall should may might must can ' +
+      'cannot could not no nor so to of in on at for with about from as by into over after before again more most ' +
+      'some any all just really very much many too also there here what when who whom which how why get got make ' +
+      'makes made feel feels feeling felt like wants want need needs know knows think thinks really always').split(' ');
+    var m = {}, i;
+    for (i = 0; i < a.length; i++) m[a[i]] = 1;
+    return m;
+  })();
+  function qaTokens(w) {
+    /* 英文输入切词去停用词；中文输入返回空数组 */
+    var r = (w || '').replace(/[^0-9a-z\s']/g, ' ').split(/[\s']+/), out = [], i, t;
+    for (i = 0; i < r.length; i++) {
+      t = r[i];
+      if (!t || t.length < 2 || QA_STOP[t]) continue;
+      out.push(t);
+    }
+    return out;
+  }
+  /* 英文词形兜底：客户说 stressed / tense / lonely，语料里可能是 stress / tension / loneliness。
+     只收高频、不歧义的心理与生活词，避免误伤。 */
+  var QA_EN_SYN = {
+    anxiety: 'anxious', anxious: 'anxiety',
+    stress: 'stressed stressful', stressed: 'stress',
+    tension: 'tense', tense: 'tension',
+    depression: 'depressed depressive', depressed: 'depression',
+    worry: 'worried worrying', worried: 'worry',
+    grief: 'grieving grieve', grieving: 'grief',
+    lonely: 'loneliness', loneliness: 'lonely',
+    exhaustion: 'exhausted', exhausted: 'exhaustion fatigue',
+    tired: 'tiredness fatigue', fatigue: 'tired exhausted',
+    anger: 'angry rage', angry: 'anger',
+    fear: 'afraid scared', scared: 'fear afraid', afraid: 'fear scared',
+    debt: 'debts', debts: 'debt',
+    sleep: 'sleeping sleepless', insomnia: 'sleepless',
+    burnout: 'burned',
+    friends: 'friend', friend: 'friends',
+    parent: 'parents', parents: 'parent',
+    kid: 'kids child children', kids: 'kid'
+  };
+  function qaEnWords(t) {
+    /* 该词条语料里出现过的英文词（缓存） */
+    if (t._qaEnWords) return t._qaEnWords;
+    var m = {}, r = qaText(t).match(/[a-z][a-z'-]{1,}/g) || [], i;
+    for (i = 0; i < r.length; i++) m[r[i]] = 1;
+    t._qaEnWords = m;
+    return m;
+  }
+  function qaHasEnWord(t, tok) {
+    /* 单复数 / 常见词形兜底：friends ↔ friend、stressed ↔ stress */
+    var m = qaEnWords(t), syn, arr, i, k;
+    if (m[tok]) return true;
+    if (tok.length > 3 && tok.charAt(tok.length - 1) === 's' && m[tok.slice(0, -1)]) return true;
+    if (m[tok + 's']) return true;
+    syn = QA_EN_SYN[tok];
+    if (syn) {
+      arr = syn.split(' ');
+      for (i = 0; i < arr.length; i++) if (m[arr[i]]) return true;
+    }
+    for (k in QA_EN_SYN) {
+      if (QA_EN_SYN.hasOwnProperty(k) && QA_EN_SYN[k].indexOf(tok) >= 0 && m[k]) return true;
+    }
+    return false;
+  }
+  function qaWindows(t) {
+    /* 语料按句切开：兜底相似度只在最像的一句里比，不再被长正文稀释 */
+    if (t._qaWins) return t._qaWins;
+    var raw = qaText(t).split(/[.!?,;:。！？；：，、\n]+/), out = [], i, x;
+    for (i = 0; i < raw.length; i++) {
+      x = raw[i].replace(/^\s+|\s+$/g, '');
+      if (x.length >= 8) out.push(x);
+    }
+    t._qaWins = out;
+    return out;
+  }
+  function qaBestDice(w, wins) {
+    var bw = qaBigrams(w), best = 0, i, d;
+    for (i = 0; i < wins.length; i++) {
+      d = qaDice(bw, qaBigrams(wins[i]));
+      if (d > best) best = d;
+    }
+    return best;
+  }
   function qaScore(topic, w) {
-    /* 客户问法与该词条的相似分：整句命中 > 标签命中 > 字面重叠兜底 */
+    /* 客户问法与该词条的相似分：
+       整句命中 > 标签/口语词命中 > 英文实词命中 > 分句兜底 */
+    var s = 0, i;
     var txt = qaText(topic);
-    var s = 0;
     if (txt.indexOf(w) >= 0) s += 60;
     var tags = topic.tags || [];
-    for (var i = 0; i < tags.length; i++) {
-      var t = tags[i];
+    for (i = 0; i < tags.length; i++) {
+      var t = tags[i].toLowerCase();
       if (w.indexOf(t) >= 0) s += 12;
       else if (t.indexOf(w) >= 0 && w.length >= 2) s += 6;
     }
-    s += qaDice(qaBigrams(w), qaBigrams(txt)) * 60;
+    var qz = qaZhWords(topic);
+    for (i = 0; i < qz.length; i++) {
+      if (w.indexOf(qz[i].toLowerCase()) >= 0) s += 14;
+    }
+    var toks = qaTokens(w);
+    if (toks.length) {
+      var hit = 0, ex = qaExtraFor(topic);
+      var nm = (ex && ex.nameEn ? ex.nameEn : '').toLowerCase();
+      for (i = 0; i < toks.length; i++) {
+        if (qaHasEnWord(topic, toks[i])) {
+          hit++;
+          /* 命中的词就在英文名里：这条就是正主，压过同类词条；
+             英文名以它开头（Anxiety… / Grief…）再加一档 */
+          if (nm.indexOf(toks[i]) >= 0) s += (nm.indexOf(toks[i]) === 0 ? 25 : 12);
+        }
+      }
+      if (hit) {
+        s += hit * 18;
+        if (hit === toks.length && toks.length >= 2) s += 20;
+        else if (hit / toks.length >= 0.6) s += 10;
+      }
+    }
+    s += qaBestDice(w, qaWindows(topic)) * 60;
     return s;
   }
+  /* @qa-core:end */
+  /* 三部互链：卡片正文里的词条链接，点一下跳到词典那一条（放在内核之后，供回归脚本整段取用） */
+  if (qaResult) qaResult.addEventListener('click', function (e) {
+    var el = closestCls(e.target, 'qa-dlink');
+    if (!el) return;
+    e.preventDefault();
+    openDictTerm(el.getAttribute('data-dict'));
+  });
+  /* 小标题（tip）显示名：把 data 里的旧写法统一成更清晰的「家门 · 定位」，
+     只改显示文字，正文、结构与出处一律不动 */
+  var QA_TIP_LABELS = {
+    '主答 · 现代心理学': '心理学 · 主答',
+    '现代心理补充': '心理学 · 补充',
+    '主答 · 中医心理': '中医 · 主答',
+    '主答 · 中医心理学': '中医 · 主答',
+    '中医视角': '中医 · 调养',
+    '主答 · 佛家心法': '佛家 · 主答',
+    '佛家心法': '佛家 · 观心'
+  };
+  function qaTipLabel(tip) { return QA_TIP_LABELS[tip] || tip || ''; }
   function renderQaCard(t) {
     var div = document.createElement('div');
     div.className = 'qa-item';
@@ -588,16 +993,56 @@
     var order = views.slice(0);
     var html = '<div class="qa-q">' + esc(t.q) + '</div>';
     if (t.name) html += '<div class="qa-meta">相关困扰：' + esc(t.name) + '</div>';
+    var extra = qaExtraFor(t);
     for (var i = 0; i < order.length; i++) {
       var v = order[i];
       if (!v) continue;
       var cls = qaSrcCls(v.src);
       html += '<div class="ans-row ' + cls + '">' +
-        '<span class="ar-tag">' + esc(v.tip || '') + '</span>' + esc(v.ans);
+        '<span class="ar-tag">' + esc(qaTipLabel(v.tip)) + '</span>' + qaAutoLink(v.ans);
       if (v.quote) html += '<div class="ar-quote"><span class="qq">' + esc(v.quote) + '</span>' +
         (v.raw ? '<div class="raw">' + esc(v.raw) + '</div>' : '') + '</div>';
       if (v.ref) html += '<div class="ar-ref">出处/依据：' + esc(v.ref) + '</div>';
+      if (extra && v.src === '西' && extra.psychAnsEn) {
+        /* 补充文字：优先 psychEn / psychZh（学术式），没有则用 psychSupplement* */
+        var supEn = extra.psychEn || extra.psychSupplementEn || '';
+        var supZh = (extra.psychZh || extra.psychSupplementZh || '').replace(/^心理学补充[：:]\s*/, '');
+        /* 补充若与上方「心斋」是同一段话，就不再重复一遍 */
+        var dupCare = (extra.compassion && supZh && qaSameText(extra.compassion, supZh)) ||
+          (extra.compassionEn && supEn && qaSameText(extra.compassionEn, supEn));
+        html += '<div class="qa-psych-en"><span>Psychology · 英文原述</span>' + esc(extra.psychAnsEn);
+        if (!dupCare && supEn) html += esc(supEn);
+        if (!dupCare && supZh) html += '<span class="qa-psych-en-label">中文补充</span>' +
+          '<span class="qa-psych-zh">' + esc(supZh) + '</span>';
+        html += '</div>';
+      }
       html += '</div>';
+    }
+    /* 收束：原「心斋 · 先安顿」与「建议 · 中英对照」两段合并成一块，
+       放在心理学 / 中医 / 佛家三个视角之后——打开问题先看到的仍是最早的版式 */
+    if (extra) {
+      if (extra.compassion || extra.compassionEn || extra.en || extra.enZh) {
+        html += '<div class="qa-extra"><div class="qa-extra-head">心斋 · 安心与建议' +
+          '<span class="qa-head-en">A word of care &amp; advice</span></div>';
+        if (extra.compassion || extra.compassionEn) {
+          html += '<div class="qa-compassion">' + esc(extra.compassion);
+          if (extra.compassionEn) html += '<span class="qa-compassion-en">' + esc(extra.compassionEn) + '</span>';
+          html += '</div>';
+        }
+        /* 佛学开示：先讲一个故事，再顺着故事轻轻说一句。
+           字段 dharma / dharmaEn，可用 \n 分段（样式为 pre-line） */
+        if (extra.dharma || extra.dharmaEn) {
+          html += '<div class="qa-dharma">' +
+            '<div class="qa-dharma-head">佛学开示<span class="qa-head-en">A teaching</span></div>';
+          if (extra.dharma) html += '<div class="qa-dharma-zh">' + esc(extra.dharma) + '</div>';
+          if (extra.dharmaEn) html += '<div class="qa-dharma-en">' + esc(extra.dharmaEn) + '</div>';
+          html += '</div>';
+        }
+        if (extra.enZh) html += '<div class="qa-extra-zh">' + esc(extra.enZh) + '</div>';
+        if (extra.en) html += '<div class="qa-extra-en">' + esc(extra.en) + '</div>';
+        if (extra.terms) html += '<div class="qa-terms">Related words · 关联词汇：' + esc(extra.terms) + '</div>';
+        html += '</div>';
+      }
     }
     var act = '';
     if (t.test) {
@@ -624,6 +1069,7 @@
     qaResult.appendChild(div);
   }
   var QA_TOP = 8; /* 发问后一次最多列出的相关词条数 */
+  var QA_MIN = 6; /* 入选门槛：口语词/英文实词命中一次（14~18 分）即可过线 */
   var qaInputRaw = ''; /* 最近一次点「问一问」的原话，供“返回再挑” */
   function qaOpenTopic(t) {
     qaResult.innerHTML = '';
@@ -643,10 +1089,57 @@
     d.innerHTML = msg;
     return d;
   }
+  /* 常用词按钮：点一下填进输入框并直接搜（客户不用自己想词） */
+  function qaChipRow(words, lead) {
+    var box = document.createElement('div');
+    box.className = 'qa-chips';
+    if (lead) {
+      var s = document.createElement('span');
+      s.className = 'qa-chips-lead';
+      s.textContent = lead;
+      box.appendChild(s);
+    }
+    for (var i = 0; i < words.length; i++) {
+      (function (word) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'qa-chip';
+        b.textContent = word;
+        b.addEventListener('click', function () {
+          var el = $('qaInput');
+          if (el) el.value = word;
+          doQaSearch(word);
+        });
+        box.appendChild(b);
+      })(words[i]);
+    }
+    return box;
+  }
+  function qaNearestHot(w, n) {
+    /* 搜不到时，从常用词里挑最贴近的几个给客户点 */
+    var src = (typeof ASK_HOT_TOP !== 'undefined' && ASK_HOT_TOP) ||
+      (typeof window !== 'undefined' && window.ASK_HOT_TOP) || [];
+    var lw = (w || '').toLowerCase(), bw = qaBigrams(lw), arr = [], i, word;
+    for (i = 0; i < src.length; i++) {
+      word = src[i];
+      var s = qaDice(bw, qaBigrams(word.toLowerCase())) * 60;
+      if (lw && lw.indexOf(word.toLowerCase()) >= 0) s += 30;
+      arr.push({ w: word, s: s });
+    }
+    arr.sort(function (a, b) { return b.s - a.s; });
+    var out = [];
+    for (i = 0; i < Math.min(n || 6, arr.length); i++) out.push(arr[i].w);
+    return out;
+  }
   function qaFallbackBtn(w) {
     var d = document.createElement('div');
     d.className = 'qa-none';
-    d.innerHTML = '「' + esc(w) + '」暂时没搜到现成条目。换更常见的说法再问（如：焦虑、睡不好、拖延、发脾气、跟父母吵架）。<br>真想找馆主聊聊，就点右下角「问心 · 解结」，把原话写进去即可。';
+    d.innerHTML = '「' + esc(w) + '」暂时没搜到现成条目。换成这些常见说法试试：';
+    d.appendChild(qaChipRow(qaNearestHot(w, 6), ''));
+    var p = document.createElement('div');
+    p.className = 'qa-none-sub';
+    p.innerHTML = '真想找馆主聊聊，就点右下角「问心 · 解结」，把原话写进去即可。';
+    d.appendChild(p);
     return d;
   }
   /* 客户点开条目后的回看入口；复制 / 给馆主都收在「问心」浮层里做 */
@@ -667,7 +1160,9 @@
       (function (c) {
         var b = document.createElement('button');
         b.className = 'qa-name';
-        b.innerHTML = '<b>' + esc(c.t.name || c.t.q) + '</b><small>' + esc(c.t.q) + '</small>';
+        var extra = qaExtraFor(c.t);
+        b.innerHTML = '<b>' + esc(c.t.name || c.t.q) + '</b><small>' + esc(c.t.q) +
+          (extra && extra.nameEn ? '<br><span class="qa-name-en">' + esc(extra.nameEn) + '</span>' : '') + '</small>';
         b.addEventListener('click', function () { qaOpenTopic(c.t); });
         list.appendChild(b);
       })(cands[i]);
@@ -678,7 +1173,12 @@
     }
     var alt = document.createElement('div');
     alt.className = 'qa-none';
-    alt.innerHTML = '都不是你想问的？换句大白话再问一次。<br>真想找馆主聊聊，就点右下角「问心 · 解结」，把原话写进去即可。';
+    alt.innerHTML = '都不是你想问的？换句大白话再问一次，或点这些常见说法：';
+    alt.appendChild(qaChipRow(qaNearestHot(raw, 6), ''));
+    var sub = document.createElement('div');
+    sub.className = 'qa-none-sub';
+    sub.innerHTML = '真想找馆主聊聊，就点右下角「问心 · 解结」，把原话写进去即可。';
+    alt.appendChild(sub);
     qaResult.appendChild(alt);
   }
   /* 两步提问：先列“相关词库名字”，客户点选后才打开正文 */
@@ -693,7 +1193,7 @@
     ranked.sort(function (a, b) { return b.s - a.s; });
     var cands = [], k;
     for (k = 0; k < ranked.length; k++) {
-      if (ranked[k].s < 3) break;
+      if (ranked[k].s < QA_MIN) break;
       cands.push(ranked[k]);
     }
     if (!cands.length) { qaResult.appendChild(qaFallbackBtn(show)); return; }
@@ -712,6 +1212,37 @@
   $('qaInput').addEventListener('input', function () {
     if (!this.value.trim()) { qaResult.innerHTML = ''; }
   });
+  /* 常用词导览：先露一行最常用的，点「更多问法」按类型展开
+     （情绪 · 睡眠 · 关系 · 工作 · 钱 · 亲子 · 生死） */
+  function renderQaHot() {
+    var top = $('qaHotTop'), more = $('qaHotMore'), tg = $('qaHotToggle');
+    if (!top || !more) return;
+    var list = (typeof ASK_HOT_TOP !== 'undefined' && ASK_HOT_TOP) ||
+      (typeof window !== 'undefined' && window.ASK_HOT_TOP) || [];
+    top.innerHTML = '';
+    top.appendChild(qaChipRow(list, ''));
+    var groups = (typeof ASK_HOT !== 'undefined' && ASK_HOT) ||
+      (typeof window !== 'undefined' && window.ASK_HOT) || [];
+    more.innerHTML = '';
+    for (var i = 0; i < groups.length; i++) {
+      (function (g) {
+        var row = document.createElement('div');
+        row.className = 'qa-hot-group';
+        var h = document.createElement('span');
+        h.className = 'qa-hot-g';
+        h.textContent = g.g;
+        row.appendChild(h);
+        row.appendChild(qaChipRow(g.items, ''));
+        more.appendChild(row);
+      })(groups[i]);
+    }
+    if (tg) tg.addEventListener('click', function () {
+      var on = more.className.indexOf('on') >= 0;
+      more.className = 'qa-hot-more' + (on ? '' : ' on');
+      tg.textContent = on ? '更多问法 · 按类型找 →' : '收起问法';
+    });
+  }
+  renderQaHot();
 
   /* ================= 自测 · 测评（标准量表 + 中医/佛家原创自省） ================= */
   var quiz = null, qi = 0, qScore = 0, qSels = [];
@@ -919,6 +1450,7 @@
       })(ESSAYS[i], i);
     }
   }
+  renderBilingualGuide('readGuide', '今天可以做的三件事', 'Three things you can do today', '不求一次解决，只求少一点伤害，多一点清明');
   function openRead(idx) {
     var it = ESSAYS[idx];
     $('readCat').style.background = ESSAY_COLOR[it.cat] || '#8a6a2e';

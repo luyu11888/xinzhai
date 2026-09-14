@@ -60,6 +60,41 @@
   .sec-sub{ text-align:center; color:var(--ink2); font-size:14px; max-width:620px; margin:0 auto 8px; }
   .divider{ border:none; border-top:1px dashed var(--line); margin:26px 0; }
   .z-sep{ text-align:center; color:var(--gold); letter-spacing:10px; font-size:12px; margin:20px 0 6px; }
+  .bilingual-guide{ margin:22px 0 26px; }
+  .guide-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; }
+  .guide-title{ color:var(--zin); font-size:19px; letter-spacing:2px; }
+  .guide-title small{ display:block; color:var(--ink3); font:12px Georgia,"Times New Roman",serif; letter-spacing:1px; margin-top:2px; }
+  .guide-note{ color:var(--ink2); font-size:12px; text-align:right; }
+  .guide-mode{ display:flex; gap:4px; margin-left:auto; }
+  .guide-mode button{ border:1px solid var(--line); background:transparent; color:var(--ink2); border-radius:6px; padding:3px 8px; cursor:pointer; font:12px inherit; }
+  .guide-mode button.on{ background:var(--zin); border-color:var(--zin); color:#fffaf0; }
+  .bilingual-guide.mode-zh .guide-en,.bilingual-guide.mode-en .guide-zh{ display:none; }
+  .guide-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .guide-step{ padding:18px; border-top:3px solid var(--gold); }
+  .guide-num{ color:var(--gold); font:22px Georgia,"Times New Roman",serif; }
+  .guide-step h3{ font-size:17px; margin:4px 0 0; }
+  .guide-en-title{ color:var(--ink2); font:13px Georgia,"Times New Roman",serif; margin:2px 0 10px; }
+  .guide-step p{ color:var(--ink2); font-size:13px; line-height:1.8; }
+  .guide-practice{ border-top:1px dashed var(--line); margin-top:12px; padding-top:10px; color:var(--zin) !important; }
+  .guide-practice span{ display:block; color:var(--moss); font:12.5px Georgia,"Times New Roman",serif; margin-top:4px; }
+  .guide-safety{ color:var(--ink3); font-size:11.5px; line-height:1.7; margin-top:12px; }
+  .bilingual-samples{ margin-top:20px; }
+  .sample-label{ color:var(--ink3); font-size:12px; letter-spacing:2px; margin-bottom:9px; }
+  .term-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .term-card{ padding:15px; }
+  .term-card h4{ font-size:16px; }
+  .term-en{ color:var(--ink2); font:12px Georgia,"Times New Roman",serif; margin-bottom:8px; }
+  .term-card p{ color:var(--ink2); font-size:12.5px; line-height:1.75; }
+  .term-card .term-practice{ color:var(--zin); border-top:1px dashed var(--line); margin-top:8px; padding-top:7px; }
+  .reflection-list{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .reflection-card{ padding:18px; }
+  .reflection-card h3{ font-size:17px; }
+  .reflection-en{ color:var(--ink2); font:13px Georgia,"Times New Roman",serif; margin-bottom:10px; }
+  .reflection-card p{ color:var(--ink2); font-size:13px; line-height:1.8; }
+  .reflection-action{ border-top:1px dashed var(--line); margin-top:10px; padding-top:9px; color:var(--zin) !important; }
+  .reflection-action span{ display:block; color:var(--moss); font:12.5px Georgia,"Times New Roman",serif; margin-top:4px; }
+  @media (max-width:900px){ .term-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:760px){ .guide-grid,.term-grid,.reflection-list{ grid-template-columns:1fr; } .guide-head{ display:block; } .guide-note{ text-align:left; margin-top:4px; } }
 
   .card{ background:var(--card); border:1px solid var(--line); border-radius:12px;
     box-shadow:0 3px 12px rgba(90,70,35,.05); padding:22px; }
@@ -146,6 +181,19 @@
   .chip:hover{ border-color:var(--zin); color:var(--zin); }
   .chip.on{ background:var(--ink); color:#f6eeda; border-color:var(--ink); }
   .fx-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; margin-top:16px; }
+  .relation-wrap{ margin:18px 0 6px; }
+  .relation-title{ color:var(--ink3); font-size:12px; letter-spacing:2px; margin-bottom:9px; }
+  .relation-list{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .relation-card{ padding:16px; }
+  .relation-card h3{ font-size:17px; margin-bottom:1px; }
+  .relation-en{ color:var(--ink2); font:12px Georgia,"Times New Roman",serif; margin-bottom:10px; }
+  .relation-lane{ border-left:3px solid var(--gold); padding-left:9px; margin-top:9px; }
+  .relation-lane.psych{ border-color:#46607a; }
+  .relation-lane.tcm{ border-color:#8a6a2e; }
+  .relation-lane.buddhist{ border-color:#6d4f9e; }
+  .relation-lane b{ display:block; font-size:13px; }
+  .relation-lane span{ display:block; color:var(--ink2); font-size:12px; line-height:1.7; margin-top:2px; }
+  @media (max-width:760px){ .relation-list{ grid-template-columns:1fr; } }
   .fx{ position:relative; cursor:pointer; padding:18px; }
   .fx .fx-t{ font-size:19px; font-weight:bold; letter-spacing:2px; }
   .fx .fx-en{ font-size:11.5px; color:var(--ink3); font-style:italic; letter-spacing:1px;
@@ -159,6 +207,16 @@
   .fx.open{ box-shadow:0 8px 20px rgba(90,70,35,.1); border-color:#cfb98a; }
   .fx .lbl{ color:var(--zin); font-weight:bold; letter-spacing:2px; font-size:12.5px; }
   .fx-count{ text-align:center; color:var(--ink3); font-size:13px; letter-spacing:2px; margin-top:6px; }
+  /* 三部互链：词卡底部的「相关的困扰」＋ 被跳中时的高亮 */
+  .fx-links{ border-top:1px dashed var(--line); margin-top:10px; padding-top:9px;
+    font-size:12.5px; color:var(--ink3); line-height:2; }
+  .fx-links-lbl{ letter-spacing:1px; }
+  .fx-ask{ color:var(--zin); text-decoration:none; cursor:pointer;
+    border-bottom:1px dotted rgba(160,57,42,.45); margin-right:10px; }
+  .fx-ask:hover{ border-bottom-style:solid; }
+  .fx.fx-hit{ border-color:#c9a25c; animation:fxHit 1.6s ease 2; }
+  @keyframes fxHit{ 0%,100%{ box-shadow:0 3px 12px rgba(90,70,35,.05); }
+    40%{ box-shadow:0 0 0 3px rgba(185,142,78,.45); } }
 
   /* ---------- 练定 · 工具 ---------- */
   .do-grid{ display:grid; grid-template-columns:1.15fr 1fr; gap:18px; }
@@ -306,6 +364,7 @@
     padding:12px 16px; transition:all .15s; box-shadow:0 2px 8px rgba(90,70,35,.04); }
   .qa-name b{ display:block; font-size:15.5px; color:var(--ink); letter-spacing:1.5px; }
   .qa-name small{ display:block; margin-top:4px; font-size:12.5px; color:var(--ink3); line-height:1.8; }
+  .qa-name-en{ color:var(--moss); font:12px/1.6 Georgia,"Times New Roman",serif; }
   .qa-name:hover{ border-color:var(--zin); }
   .qa-name:hover b{ color:var(--zin); }
   .qa-backbar{ margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;
@@ -317,8 +376,33 @@
     padding:20px 22px; margin-bottom:14px; box-shadow:0 3px 12px rgba(90,70,35,.05); }
   .qa-item .qa-q{ font-size:18px; font-weight:bold; letter-spacing:1px; margin-bottom:6px; }
   .qa-item .qa-meta{ font-size:12px; color:var(--ink3); margin-bottom:12px; }
+  .qa-extra{ margin-top:16px; border-top:1px solid var(--line); padding-top:14px; }
+  .qa-extra-head{ display:flex; align-items:center; color:var(--zin); font-size:14px; letter-spacing:1px; margin-bottom:8px; }
+  .qa-extra-head::before{ content:''; flex:none; width:3px; height:13px; border-radius:2px;
+    background:var(--gold); margin-right:7px; }
+  .qa-head-en{ margin-left:8px; color:var(--ink3); font:11px Georgia,"Times New Roman",serif;
+    letter-spacing:1px; font-weight:normal; }
+  /* 合并后的收束块：安抚语在上、中英建议在下，整体作为卡片结尾 */
+  .qa-compassion{ background:#faf3e2; border-left:3px solid var(--gold); padding:10px 12px; margin-top:4px; color:var(--ink2); font-size:13px; line-height:1.9; }
+  .qa-compassion-en{ display:block; color:var(--moss); font:13px/1.8 Georgia,"Times New Roman",serif; margin-top:4px; }
+  /* 佛学开示：讲一个故事，再顺着故事轻轻说一句。字段 dharma / dharmaEn，支持 \n 分段 */
+  .qa-dharma{ background:#f3f7f1; border-left:3px solid var(--moss); padding:10px 12px; margin-top:8px; }
+  .qa-dharma-head{ color:var(--moss); font-size:12px; letter-spacing:2px; margin-bottom:6px; }
+  .qa-dharma-zh{ color:var(--ink2); font-size:13px; line-height:1.95; white-space:pre-line; }
+  .qa-dharma-en{ color:var(--moss); font:12px/1.8 Georgia,"Times New Roman",serif; margin-top:6px; white-space:pre-line; }
+  .qa-extra-zh{ color:var(--ink2); font-size:13px; line-height:1.9; margin-top:12px; }
+  .qa-extra-en{ color:var(--ink2); font:14px/1.8 Georgia,"Times New Roman",serif; margin-top:6px; }
+  .qa-terms{ color:var(--ink3); font:12px Georgia,"Times New Roman",serif; margin-top:9px; }
+  .qa-psych-en{ border-top:1px dashed var(--line); margin-top:12px; padding-top:9px; color:var(--ink); font-size:14px; line-height:2; }
+  .qa-psych-en span{ display:block; color:var(--ink3); font:11px/1.6 inherit; letter-spacing:1px; margin:3px 0; }
+  .qa-psych-en-label{ color:var(--moss) !important; margin-top:8px !important; }
+  .qa-psych-zh{ color:var(--ink2) !important; font:14px/2 inherit !important; letter-spacing:0 !important; margin-top:8px !important; }
+  /* 三部互链：问心正文里的词条链接（平时只留一条虚线下划线，不抢戏） */
+  .qa-dlink{ color:inherit; text-decoration:none; cursor:pointer;
+    border-bottom:1px dashed rgba(160,57,42,.5); padding-bottom:1px; }
+  .qa-dlink:hover{ color:var(--zin); border-bottom-style:solid; }
   .ans-row{ margin:10px 0; padding:12px 14px; border-radius:10px; line-height:2; font-size:14.5px; }
-  .ans-row .ar-tag{ display:inline-block; font-size:11px; letter-spacing:2px; padding:1px 9px;
+  .ans-row .ar-tag{ display:inline-block; white-space:nowrap; font-size:11px; letter-spacing:2px; padding:1px 9px;
     border-radius:999px; color:#fffaf0; margin-right:8px; vertical-align:1px; }
   .ans-row.west{ background:#f0f4f8; } .ans-row.tcm{ background:#f7f1e2; } .ans-row.bud{ background:#f3eef8; }
   .ans-row.west .ar-tag{ background:#46607a; } .ans-row.tcm .ar-tag{ background:#8a6a2e; }
@@ -336,18 +420,41 @@
   .qa-state strong{ color:var(--zin); }
   .qa-none{ text-align:center; padding:26px 10px; color:var(--ink2); font-size:14px; line-height:2; }
   .qa-none .mini-btn{ margin-top:6px; }
+  .qa-none-sub{ margin-top:10px; color:var(--ink3); font-size:12.5px; }
+  /* ---------- 常用词导览（首页问心下方）：点一下就搜，不抢戏 ---------- */
+  .qa-chips{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:10px; }
+  .qa-chips-lead{ align-self:center; color:var(--ink3); font-size:12.5px; letter-spacing:1px; }
+  .qa-chip{ cursor:pointer; font-family:inherit; font-size:12.5px; letter-spacing:.5px;
+    color:var(--ink2); background:#fffdf6; border:1px solid var(--line);
+    border-radius:999px; padding:4px 11px; transition:all .15s; }
+  .qa-chip:hover{ color:var(--zin); border-color:var(--gold); background:#fff8e8; }
+  .qa-chip:active{ transform:translateY(1px); }
+  .qa-hot{ max-width:680px; margin:2px auto 0; }
+  .qa-hot-toggle{ margin-top:8px; cursor:pointer; font-family:inherit; background:none; border:none;
+    color:var(--ink3); font-size:12.5px; letter-spacing:1px; padding:3px 6px; }
+  .qa-hot-toggle:hover{ color:var(--zin); }
+  .qa-hot-more{ display:none; margin-top:4px; }
+  .qa-hot-more.on{ display:block; }
+  .qa-hot-group{ display:flex; align-items:flex-start; gap:8px; margin-top:8px; text-align:left; }
+  .qa-hot-g{ flex:none; width:34px; color:var(--gold); font-size:12px; letter-spacing:1px; line-height:22px; }
+  .qa-hot-group .qa-chips{ justify-content:flex-start; margin-top:0; }
 
   /* ---------- 文集 ---------- */
-  .essay-list{ max-width:720px; margin:0 auto; }
-  .essay{ cursor:pointer; padding:18px 20px; margin-bottom:12px; }
+  .essay-list-head{ max-width:880px; margin:30px auto 12px; padding-top:20px; border-top:1px solid var(--line); }
+  .essay-list-head strong{ display:block; color:var(--zin); font-size:17px; letter-spacing:2px; }
+  .essay-list-head span{ display:block; color:var(--ink3); font:12px Georgia,"Times New Roman",serif; margin-top:2px; }
+  .essay-list{ max-width:880px; margin:0 auto; display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .essay{ cursor:pointer; padding:18px 20px; min-height:142px; transition:transform .18s, box-shadow .18s, border-color .18s; }
+  .essay:hover{ transform:translateY(-2px); box-shadow:0 8px 18px rgba(90,70,35,.09); border-color:#cfb98a; }
   .essay .es-cat{ font-size:11px; letter-spacing:2px; color:#fff; padding:2px 10px; border-radius:999px; }
   .essay h3{ font-size:18.5px; letter-spacing:1.5px; margin:8px 0 4px; }
-  .essay .es-lead{ font-size:13px; color:var(--ink2); }
+  .essay .es-lead{ font-size:13px; color:var(--ink2); line-height:1.8; }
   .read-ov .essay-card{ background:var(--card); border-radius:16px; border:1px solid var(--line);
-    max-width:640px; width:100%; max-height:86vh; overflow-y:auto; padding:28px 26px; }
+    max-width:720px; width:calc(100% - 28px); max-height:88vh; overflow-y:auto; padding:34px 42px 28px; }
   .read-ov h3{ font-size:22px; letter-spacing:2px; margin:10px 0; line-height:1.7; }
   .read-ov .es-meta{ font-size:12.5px; color:var(--ink3); margin-bottom:14px; letter-spacing:2px; }
-  .read-ov p{ font-size:15px; line-height:2.15; margin-bottom:14px; text-align:justify; }
+  .read-ov p{ font-size:15px; line-height:2.2; margin-bottom:16px; text-align:left; }
+  @media (max-width:760px){ .essay-list{ grid-template-columns:1fr; } .read-ov .essay-card{ padding:26px 20px 22px; } }
 
   /* ---------- 预约弹层 ---------- */
   .ask-ov .ask-card{ background:var(--card); border-radius:16px; border:1px solid var(--line);
@@ -543,10 +650,16 @@
   <div class="qa-hero">
     <div class="qa-search">
       <input id="qaInput" type="search" autocomplete="off"
-        placeholder="心里有卡点？写下来，如：总是拖延 / 睡不着 / 爱发脾气…" maxlength="40">
+        placeholder="写下你的困扰 / Describe what is troubling you: 拖延 / anxiety / poor sleep…" maxlength="80">
       <button type="button" class="qa-send" id="qaSend">问 一 问</button>
     </div>
-    <div class="qa-lead">写一句心里的卡点，点「问一问」；先从相关条目里挑最像的一个，再打开细读。</div>
+    <div class="qa-lead">中文或英文都可以。Write in Chinese or English, then choose the closest concern to read.</div>
+    <!-- 常用词导览：先露一行最常用的，点「更多问法」按类型展开 -->
+    <div class="qa-hot" id="qaHot">
+      <div class="qa-chips" id="qaHotTop"></div>
+      <button type="button" class="qa-hot-toggle" id="qaHotToggle">更多问法 · 按类型找 →</button>
+      <div class="qa-hot-more" id="qaHotMore"></div>
+    </div>
   </div>
   <div class="qa-result" id="qaResult"></div>
 
@@ -595,7 +708,7 @@
     <div class="card go-card" data-go="dict">
       <div class="no">识 · 理</div>
       <h3>心理词典</h3>
-      <p>西 · 中 · 佛三流并汇，不懂的名词先查一查；练定计时在「专注力」页。</p>
+      <p>心理学 · 中医 · 佛学三部互照，不懂的名词先查一查；练定计时在「专注力」页。</p>
     </div>
   </div>
 </section>
@@ -603,12 +716,14 @@
 <!-- ======== 词典 · 心理词典（词典·练习页上） ======== -->
 <section id="sec-effects" class="sec">
   <div class="sec-kicker">识 理</div>
-  <div class="sec-title">心理词典 · 三流并汇</div>
-  <p class="sec-sub">「西」现代心理学、「中」中医心理学、「佛」佛家心法，皆配白话。卡片可筛选比对；道理看懂了，就移步「专注力」页去练定。</p>
+  <div class="sec-title">关联词库 · 三部互照</div>
+  <p class="sec-sub">心理学看机制，中医看身心节律，佛学看觉察与执着。三条路不互相冒充，各自提供一种理解痛苦的角度。</p>
+  <div class="bilingual-guide" id="dictGuide"></div>
   <div class="fx-tools">
     <input id="fxSearch" type="search" placeholder="搜一搜：如「首因」「七情」「我执」…">
   </div>
   <div class="fx-tools" id="fxCats"></div>
+  <div id="fxRelations"></div>
   <div class="fx-grid" id="fxGrid"></div>
   <div class="fx-count" id="fxCount"></div>
   <div class="z-sep">—— ✦ ——</div>
@@ -712,6 +827,8 @@
   <div class="sec-kicker">文 · 集</div>
   <div class="sec-title">心斋随笔</div>
   <p class="sec-sub">不灌理论，只说人话。几篇短文，写给在事上打转、心里没歇的人。</p>
+  <div class="bilingual-guide" id="readGuide"></div>
+  <div class="essay-list-head"><strong>长篇随笔</strong><span>Long-form reflections · 选择一篇，慢慢读完</span></div>
   <div class="essay-list" id="readList" style="margin-top:20px;"></div>
 </section>
 </main>
@@ -781,7 +898,7 @@
     <div class="es-meta" id="readMeta"></div>
     <div id="readBody"></div>
     <div style="text-align:center; margin-top:8px;">
-      <button class="mini-btn" id="readClose">合 卷</button>
+      <button class="mini-btn" id="readClose">返回随笔</button>
     </div>
   </div>
 </div>
@@ -824,9 +941,16 @@
 
 <script src="data.js"></script>
 <script src="data_effects.js"></script>
+<script src="data_relations.js"></script>
+<script src="data_links.js"></script>
 <script src="data_essays.js"></script>
+<script src="data_bilingual.js"></script>
 <script src="data_ask.js"></script>
 <script src="data_tests.js"></script>
+<script src="data_ask_bilingual.js"></script>
+<script src="data_ask_bilingual_more.js"></script>
+<script src="data_ask_care.js"></script>
+<script src="data_ask_queries.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
